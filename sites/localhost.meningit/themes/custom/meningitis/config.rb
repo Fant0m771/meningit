@@ -13,15 +13,15 @@
 # Using :development enables the use of FireSass but will bloat the stylesheets
 # with debug code, be sure to change to :production when moving from development
 # to production servers.
-environment = :development
-#environment = :production
+#environment = :development
+environment = :production
 
 
 # Location of the theme's resources.
 # Compass will overwrite the CSS files in the css_dir when set to watch.
 css_dir = "css"
 sass_dir = "sass"
-images_dir = "css/images"
+images_dir = "images"
 
 
 # Assuming this theme is in sites/*/themes/THEMENAME, you can add the partials
@@ -48,7 +48,7 @@ relative_assets = true
 
 # To disable debugging comments that display the original location of your
 # selectors. Uncomment:
-# line_comments = false
+line_comments = false
 
 # Pass options to sass.
 # - For development, we turn on the FireSass-compatible debug_info.

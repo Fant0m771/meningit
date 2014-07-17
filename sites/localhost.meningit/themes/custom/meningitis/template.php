@@ -25,10 +25,11 @@
 /**
  * Preprocess variables for the html template.
  */
-/* -- Delete this line to enable.
-function adaptivetheme_subtheme_preprocess_html(&$vars) {
+
+function meningitis_preprocess_html(&$vars) {
   global $theme_key;
 
+  drupal_add_js(path_to_theme() . '/scripts/scripts.js');
   // Two examples of adding custom classes to the body.
 
   // Add a body class for the active theme name.
@@ -38,7 +39,7 @@ function adaptivetheme_subtheme_preprocess_html(&$vars) {
   // $vars['classes_array'][] = css_browser_selector();
 
 }
-// */
+
 
 
 /**
