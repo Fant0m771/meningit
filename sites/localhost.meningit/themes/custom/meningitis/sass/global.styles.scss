@@ -96,3 +96,19 @@ a {
   width: 109px;
   height: 85px;
 }
+
+#open-mobile-menu {
+  background: image-url('mobile-menu.png') no-repeat;
+  width: 65px;
+  height: 60px;
+  text-indent: -9999px;
+  position: relative;
+
+  &.opened {
+    background-position: 0 -73px;
+  }
+}
+
+.pane-menu-menu-mobile-menu {
+  display: none;
+}

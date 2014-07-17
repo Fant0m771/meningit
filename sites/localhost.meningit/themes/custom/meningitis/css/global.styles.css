@@ -18,3 +18,8 @@ a:hover img { filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=80); opaci
 .node-type-article .pane-node-body .field-name-body .field-item.odd { background-color: #ebebeb; }
 
 #backtotop { background: url('../images/to-top.png?1405591033') no-repeat; width: 109px; height: 85px; }
+
+#open-mobile-menu { background: url('../images/mobile-menu.png?1405594038') no-repeat; width: 65px; height: 60px; text-indent: -9999px; position: relative; }
+#open-mobile-menu.opened { background-position: 0 -73px; }
+
+.pane-menu-menu-mobile-menu { display: none; }
