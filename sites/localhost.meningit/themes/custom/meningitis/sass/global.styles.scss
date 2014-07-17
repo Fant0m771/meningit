@@ -48,7 +48,11 @@ body {
   font-size: 87.5%;
 }
 
-#content, #main-content-header, #messages, #block-panels-mini-header-panel {
+#header {
+  border-top: 10px solid $red;
+}
+
+#main-content-header, #messages, #block-panels-mini-header-panel, .pane-footer-panel {
   max-width: $max_site_width;
   margin: 0 auto;
 }
@@ -56,4 +60,30 @@ body {
 #block-panels-mini-page-banner {
   max-width: $max_banner_width;
   margin: 0 auto;
+}
+
+a {
+  &:hover {
+    img {
+      @include opacity(0.8);
+    }
+  }
+}
+
+/* Article pages */
+.node-type-article {
+  .pane-node-body {
+     .field-name-body {
+       .field-item {
+         width: $max_banner_width;
+
+         &.even {
+
+         }
+         &.odd {
+           background-color: $medium_light;
+         }
+       }
+     }
+  }
 }
