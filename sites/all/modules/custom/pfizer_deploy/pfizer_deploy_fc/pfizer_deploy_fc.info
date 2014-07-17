@@ -1,0 +1,6 @@
+name = Pfizer Deploy Field Collections
+core = 7.x
+package = Pfizer Base Features
+project = pfizer_deploy_fc
+dependencies[] = field_collection
+dependencies[] = pfizer_deploy

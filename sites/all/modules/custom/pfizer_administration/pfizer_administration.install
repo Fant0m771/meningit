@@ -1,0 +1,41 @@
+<?php
+
+/**
+ * @file
+ * Install file for pfizer_administration.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function pfizer_administration_install() {
+  if (module_exists('toolbar')) {
+    module_disable(array('toolbar'), TRUE);
+  }
+  if (module_exists('overlay')) {
+    module_disable(array('overlay'), TRUE);
+  }
+  // Set admin theme to shiny.
+  // TODO: check if shiny is actually there :-).
+  // TODO: use ember instead once hover tooltip bugs are fixed.
+  if (TRUE) {
+    // Enable the admin theme.
+    db_update('system')
+      ->fields(array('status' => 1))
+      ->condition('type', 'theme')
+      ->condition('name', 'shiny')
+      ->execute();
+    variable_set('admin_theme', 'shiny');
+    variable_set('node_admin_theme', '1');
+    theme_disable(array('seven'));
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function pfizer_administration_uninstall() {
+  if (!module_exists('toolbar')) {
+    module_enable(array('toolbar'), TRUE);
+  }
+}

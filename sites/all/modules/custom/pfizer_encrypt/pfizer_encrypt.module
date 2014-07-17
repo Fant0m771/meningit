@@ -1,0 +1,66 @@
+<?php
+/**
+ * @file
+ * Code for the Pfizer Encrypt feature.
+ */
+
+include_once 'pfizer_encrypt.features.inc';
+
+/**
+ * Implementation of hook_encrypt_method_info().
+ */
+function pfizer_encrypt_encrypt_method_info() {
+  // Pfizer-specific mcrypt method
+  if (function_exists('mcrypt_get_iv_size') && function_exists('mcrypt_create_iv') && function_exists('mcrypt_encrypt')) {
+    $methods['pfizer_encrypt'] = array(
+      'title' => t('Pfizer encrypt'),
+      'description' => t('Pfizer-specific encrypt mechanism'),
+      'callback' => 'pfizer_encrypt_encrypt_method',
+    );
+  }
+
+  return $methods;
+}
+
+/**
+ * Callback for Encrypt implementation: Pfizer encrypt
+ *
+ * This method uses a PHPs mcrypt extension and AES-256 and a Pfizer-specific key.
+ */
+function pfizer_encrypt_encrypt_method($op = 'encrypt', $text = '', $options = array()) {
+  $processed_text = '';
+
+  // Use localhost if there's no subscription information available.
+  $key = isset($_ENV['AH_SITE_GROUP']) ? $_ENV['AH_SITE_GROUP'] : 'localhost';
+
+  // Key cannot be too long for this encryption
+  $key = drupal_substr($key, 0, 32);
+
+  // Define iv cipher
+  $iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB);
+  $iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
+  $use_base64 = array_key_exists('base64', $options) && $options['base64'] !== FALSE;
+
+  // Check op
+  if ($op == 'decrypt') {
+    // Decrypt
+    // Check if we are using base64 encoding
+    if ($use_base64) {
+      $text = base64_decode($text);
+    }
+
+    // Decrypt text
+    $processed_text = mcrypt_decrypt(MCRYPT_RIJNDAEL_256, $key, $text, MCRYPT_MODE_ECB, $iv);
+  }
+  else {
+    // Encrypt
+    $processed_text = mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $key, $text, MCRYPT_MODE_ECB, $iv);
+
+    // Check if we are using base64 encoding
+    if ($use_base64) {
+      $processed_text = base64_encode($processed_text);
+    }
+  }
+
+  return trim($processed_text);
+}

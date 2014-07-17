@@ -1,0 +1,6 @@
+name = Pfizer Deploy Webform
+core = 7.x
+package = Pfizer Base Features
+project = pfizer_deploy_webform
+dependencies[] = pfizer_deploy
+dependencies[] = webform

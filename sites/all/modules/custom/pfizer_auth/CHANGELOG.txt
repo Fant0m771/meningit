@@ -1,0 +1,19 @@
+Pfizer Authentication module
+----------------------------
+
+---------------------------
+Version 7.x-1.1, 2013-01-04
+---------------------------
+- Initial release
+- Integration with Janrain Engage Service Provider
+  * Pfizer HCP Identity Provider
+  * Pfizer Employees Identity Provider
+- Identity Provider initiated for HCPs
+- HCP Registration link
+- Login box in popup window or overlay (modal)
+- Display relevant Drupal and Janrain settings in module settings
+- Predefault configuration values, skipping some manual steps
+  * Account > User register : Visitors
+  * Account > Email verification : False
+  * Janrain > API Key : Pfizer's Janrain API Key (see documentation)
+  * Janrain > Retrieve extended user info : True

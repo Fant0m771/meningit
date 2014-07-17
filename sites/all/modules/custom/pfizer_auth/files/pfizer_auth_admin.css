@@ -1,0 +1,17 @@
+table#pfizer-auth-country-settings .enabled,
+table#pfizer-auth-country-settings .lang-code{
+  text-align:center;
+}
+
+table#pfizer-auth-country-settings th.enabled{
+  width:70px;
+}
+
+table#pfizer-auth-country-settings th.lang-code{
+  width:160px;
+  
+}
+
+table#pfizer-auth-country-settings td.enabled label{
+  display:none;
+}

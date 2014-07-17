@@ -1,0 +1,146 @@
+<?php
+/**
+ * @file
+ * Install and related hooks for Pfizer Connect Authentication module.
+ */
+
+
+/**
+ * Implements hook_enable().
+ */
+function pfizer_connect_install() {
+
+  // Create XD Receiver file
+  _pfizer_connect_create_xdreceiver_file();
+
+  // Create variables (default values)
+  variable_set('pfizer_connect_js_url_sso', 'https://dm-federate.pfizer.com/sso.js');
+  variable_set('pfizer_connect_js_url_xd_receiver', 'https://dm-federate.pfizer.com/static/xd_receiver.js');
+  variable_set('pfizer_connect_js_url_engage_main', 'https://d9gtfahawvydr.cloudfront.net/pfizer/engage-mc-v2.js');
+  variable_set('pfizer_connect_js_url_engage_sso', 'https://d9gtfahawvydr.cloudfront.net/pfizer/sso-mc.js');
+
+  // Clear and refresh field data
+  field_cache_clear();
+  field_associate_fields('pfizer_connect');
+
+  // Create "Pfizer profile info" field if it does not exists
+  if (!field_info_field('pfizer_profile')) {
+    // Create field
+    $field = array(
+      'field_name' => 'pfizer_profile',
+      'type' => 'text',
+    );
+    $field = field_create_field($field);
+
+    // Create relationship between field and user entity
+    $instance = array(
+      'field_name' => $field['field_name'],
+      'entity_type' => 'user',
+      'bundle' => 'user',
+      'label' => 'Pfizer profile info',
+      'description' => 'Information provided by Pfizer Connect',
+      'widget' => array('type' => 'textfield'),
+    );
+    field_create_instance($instance);
+
+    drupal_set_message(t('The field <em>Pfizer profile info</em> has been created in <em>user</em> entity.'));
+  }
+
+  // Create mapping field in Janrain Engage module
+  $values = _pfizer_connect_get_rpx_field_mapping();
+  $db_field_id = db_insert('rpx_profile_field')
+    ->fields($values)
+    ->execute();
+  watchdog('pfizer_connect', 'Engage profile field %field added with path %path.', array('%field' => $values['title'], '%path' => $values['path']), WATCHDOG_NOTICE, l(t('view'), 'admin/config/people/rpx/fields'));
+
+  // Map field with Janrain Engage module
+  $profile_field_mapping = array(
+    'fid' => $db_field_id,
+    'set' => 'user',
+    'field' => 'pfizer_profile',
+    'update' => RPX_UPDATE_ALWAYS, // Always update (overwriting the existing data).
+    'bundle' => 'user',
+  );
+  $current_map = variable_get('rpx_profile_fields_map', array());
+  array_push($current_map, $profile_field_mapping);
+  variable_set('rpx_profile_fields_map', $current_map);
+
+  drupal_set_message(t('Profile to Engage data mapping has been updated.'));
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function pfizer_connect_uninstall() {
+  // Delete XD Receiver file
+  _pfizer_connect_delete_xdreceiver_file();
+
+  // Remove variables
+  db_delete('variable')->condition('name', 'pfizer_connect_%', 'LIKE')->execute();
+
+  // Remove fields
+  field_delete_field('pfizer_profile');
+  field_purge_batch(1000);
+
+  // Remove mapping fields
+  $values = _pfizer_connect_get_rpx_field_mapping();
+  db_delete('rpx_profile_field')->condition('path', $values['path'])->execute();
+
+  // Remove mapping
+  $current_map = variable_get('rpx_profile_fields_map', array());
+  foreach ($current_map as $key => $mapped_field) {
+    if ($current_map[$key]['field'] == 'pfizer_profile') {
+      unset($current_map[$key]);
+      break;
+    }
+  }
+  variable_set('rpx_profile_fields_map', $current_map);
+}
+
+
+/**
+ * Get field mapping information
+ */
+function _pfizer_connect_get_rpx_field_mapping() {
+  module_load_include('inc', 'rpx_ui', 'rpx_ui.admin');
+  $profile_field_mapping = array();
+  $profile_field_mapping['title'] = 'Pfizer profile info';
+  $profile_field_mapping['path'] = "['opxBlob']";
+  $profile_field_mapping['parsed_path'] = serialize(_rpx_parse_path($profile_field_mapping['path']));
+
+  return $profile_field_mapping;
+}
+
+
+/**
+ * Create Cross Domain receiver HTML file
+ */
+function _pfizer_connect_create_xdreceiver_file() {
+  $xdreceiver_path = drupal_get_path('module', 'pfizer_connect') . '/xdreceiver.html';
+  $xdreceiver = file_get_contents($xdreceiver_path);
+
+  //Create the directory if it does not already exist, otherwise check the permissions
+  $directory = 'public://';
+
+  //Saves a file to the specified destination and creates a database entry.
+  $file = file_save_data($xdreceiver, $directory . 'xdreceiver.html', FILE_EXISTS_REPLACE);
+
+  //Set the file status to permanent so it is not deleted in next cron run
+  $file->status = FILE_STATUS_PERMANENT;
+  file_save($file);
+  file_usage_add($file, 'pfizer_connect', 'html', 0);
+
+  variable_set('pfizer_connect_xdreceiver_fid', $file->fid);
+}
+
+
+/**
+ * Delete Cross Domain receiver HTML file
+ */
+function _pfizer_connect_delete_xdreceiver_file() {
+  $fid = variable_get('pfizer_connect_xdreceiver_fid', '');
+  $file = file_load($fid);
+  if ($file) {
+    file_delete($file);
+  }
+}

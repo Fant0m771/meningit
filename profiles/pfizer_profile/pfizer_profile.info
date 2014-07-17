@@ -1,0 +1,4 @@
+name = Pfizer
+description = Default Pfizer Profile
+core = 7.x
+dependencies[] = pfizer_base

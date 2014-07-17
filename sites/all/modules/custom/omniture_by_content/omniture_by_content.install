@@ -1,0 +1,82 @@
+<?php
+
+if (!defined('OMNITURE_PREFIX')) {
+  define('OMNITURE_PREFIX', 'omniture_by_content');
+}
+
+/**
+ * @file
+ * Implementation of hook_install().
+ */ 
+function omniture_by_content_install() {
+  
+  $module_attributes = _omniture_by_content_variables();
+  foreach ($module_attributes as $input_element => $default_value) {
+    variable_set(OMNITURE_PREFIX . '_' . $input_element, $default_value);
+  }
+  
+  $omniture_by_content_custom_fields = _omniture_by_content_node_custom_fields();
+  foreach ($omniture_by_content_custom_fields as $field) {
+    field_create_field($field);
+    field_create_instance($field);
+  }
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */ 
+function omniture_by_content_uninstall() {
+
+  $module_attributes = _omniture_by_content_variables();
+  foreach (array_keys($module_attributes) as $input_element) {
+    variable_del(OMNITURE_PREFIX . '_' . $input_element);
+  }
+  
+  $omniture_by_content_custom_fields = _omniture_by_content_node_custom_fields();
+  foreach ($omniture_by_content_custom_fields as $field) {
+   
+    $instance = field_info_instance('node', $field['field_name'], 'basic_page');
+    if ($instance) {
+      field_delete_instance($instance);
+    }
+    
+    field_delete_field($field['field_name']);
+  }
+}
+
+/**
+ * Add content type for configurable string tracking
+ * @return type 
+ */
+function _omniture_by_content_node_custom_fields() {
+  return array(
+    array(
+    'field_name' => 'field_omniture_page_name_value', 
+    'entity_type' => 'node', 
+    'type' => 'text',
+    'label' => 'Omniture Page Name Tracking Value', 
+    'bundle' => 'page', 
+    'required' => FALSE,
+    'translatable' => TRUE,
+    'active' => TRUE, 
+    'display' => array( 'default' => array('type' => 'hidden') ),
+    'widget' => array(
+      'type' => 'text_textfield',
+      ), 
+    ),
+   );
+}
+
+/**
+ * Set default values to variables
+ * @return type 
+ */
+function _omniture_by_content_variables() {
+  $onload_core = file_get_contents(drupal_get_path('module', OMNITURE_PREFIX) . '/scripts/' . OMNITURE_PREFIX . '_onload.js', 'r');
+  
+  return array(
+    'selectors_javascript' => $onload_core,
+  );
+    
+  return $variables;
+}

@@ -1,0 +1,167 @@
+<?php
+/**
+ * @file
+ * Install and related hooks for Pfizer Authentication module.
+ */
+
+/**
+ * Implements hook_enable().
+ */
+function pfizer_auth_install() {
+  // Set default values for Drupal settings.
+  variable_set('user_register', USER_REGISTER_VISITORS);
+  variable_set('user_email_verification', FALSE);
+  variable_set('user_mail_register_no_approval_required_notify', FALSE);
+
+  // Set default values for Janrain settings.
+  $janrain_api_key = '505aac430da70482571d9b0aee82d8a0b6c91baa';
+  $janrain_lookup = RPX::lookup($janrain_api_key, 'apiKey');
+  if (is_array($janrain_lookup)) {
+    variable_set('rpx_apikey', $janrain_lookup['apiKey']);
+    variable_set('rpx_realm', $janrain_lookup['realm']);
+    variable_set('rpx_realm_scheme', $janrain_lookup['realmScheme']);
+    variable_set('rpx_app_id', $janrain_lookup['appId']);
+    variable_set('rpx_social_pub', $janrain_lookup['socialPub']);
+    variable_set('rpx_admin_url', $janrain_lookup['adminUrl']);
+    variable_set('rpx_extended_authinfo', TRUE);
+    $use_mapping_api = strpos($janrain_lookup['capabilities'], 'mapping_api');
+    variable_set('rpx_mapping_api', ($use_mapping_api === FALSE) ? 0 : 1);
+    $providers = RPX::get_enabled_providers($janrain_lookup['realm'], $janrain_lookup['realmScheme']);
+    variable_set('rpx_enabled_providers', $providers);
+  }
+
+  // Set default values for Pfizer Authentication vars.
+  module_load_include('module', 'list');
+  variable_set('pfizer_auth_login_form_interface', 'modal');
+  variable_set('pfizer_auth_pac_default_form_style', TRUE);
+  variable_set('pfizer_auth_pac_login_url', 'https://qa.pfizerpro.com/sites/registration/pages/Login.aspx?resume=/idp/eQ6ON/resumeSAML20/idp/SSO.ping&amp;spentity=https://dm-sso.pfizer.com');
+  variable_set('pfizer_auth_pac_login_success_url', 'https://devfederate.pfizer.com/idp/startSSO.ping?PartnerSpId=https://dm-sso.pfizer.com&TARGET=[pfizer-auth:token-handler-url]');
+  variable_set('pfizer_auth_pac_logout_url', 'https://qa.pfizerpro.com/JanRainLogout.html');
+  variable_set('pfizer_auth_pac_register_url', 'https://qa.pfizerpro.com/sites/registration/pages/registration.aspx?successURL=https%3A%2F%2Fdevfederate.pfizer.com%2Fidp%2FstartSSO.ping%3FPartnerSpId%3Dhttps%3A%2F%2Fdm-sso.pfizer.com%26TARGET%3D[pfizer-auth:token-handler-url:encoded]');
+  variable_set('pfizer_auth_pac_error_list', list_extract_allowed_values('PAC01|Authentication Error', 'list_text', FALSE));
+  variable_set('pfizer_auth_pac_error_weight', 4);
+  variable_set('pfizer_auth_sso_enabled', TRUE);
+  variable_set('pfizer_auth_js_url_sso', 'https://dm-federate.pfizer.com/sso.js');
+  variable_set('pfizer_auth_js_url_xd_receiver', 'https://dm-federate.pfizer.com/static/xd_receiver.js');
+  variable_set('pfizer_auth_js_url_pfizer_engage', '');
+  variable_set('pfizer_auth_js_url_pfizer_sso', '');
+
+  // Clear and refresh field data.
+  field_cache_clear();
+  field_associate_fields('pfizer_auth');
+
+  // Create field mapping for all fields.
+  module_load_include('inc', 'pfizer_auth', 'pfizer_auth.field');
+  $mapping_fields = _pfizer_auth_get_mapping_fields();
+  $created_fields = array();
+
+  foreach ($mapping_fields as $field) {
+
+    // Create Pfizer Profile user fields.
+    _pfizer_auth_create_field($field['name'], $field['label']);
+
+    // Create field mapping in Janrain table.
+    $values = _pfizer_auth_get_rpx_field_mapping($field['label'], $field['path']);
+    $db_field_id = db_insert('rpx_profile_field')->fields($values)->execute();
+
+    // Map field with Janrain Engage module.
+    $field_mapping = array(
+      'fid' => $db_field_id,
+      'set' => 'user',
+      'field' => $field['name'],
+      'update' => RPX_UPDATE_ALWAYS, // Always update (overwrite existing data after login).
+      'bundle' => 'user',
+    );
+
+    array_push($created_fields, $field_mapping);
+  }
+
+  // Overwrite Janrain field mapping variable.
+  $current_map = variable_get('rpx_profile_fields_map', array());
+  $current_map += $created_fields;
+  variable_set('rpx_profile_fields_map', $current_map);
+
+  // PAC Login form (IDP Initiated) only for anonymous users.
+  db_insert('block_role')
+    ->fields(array('rid', 'module', 'delta'))
+    ->values(array(
+      'rid' => 1, // anonymous user.
+      'module' => 'pfizer_auth',
+      'delta' => 'pfizer-auth-pac-login-form',
+    ))
+    ->execute();
+
+  // Clear the cached pages and blocks.
+  cache_clear_all();
+
+  // Rebuild menu to show/hide the "Janrain Engage Identities" depending on the API key settings.
+  menu_rebuild();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function pfizer_auth_uninstall() {
+
+  // Remove variables.
+  db_delete('variable')->condition('name', 'pfizer_auth_%', 'LIKE')->execute();
+
+  // Remove fields.
+  module_load_include('inc', 'pfizer_auth', 'pfizer_auth.field');
+  $mapping_fields = _pfizer_auth_get_mapping_fields();
+  foreach ($mapping_fields as $field) {
+    // Delete user field.
+    field_delete_field($field['name']);
+  }
+  field_purge_batch(1000);
+
+  // Remove mapping fields.
+  db_delete('rpx_profile_field')->condition('title', 'Pfizer Profile%', 'LIKE')->execute();
+
+  // Remove mapping.
+  $current_map = variable_get('rpx_profile_fields_map', array());
+  foreach ($current_map as $key => $mapped_field) {
+    if (strpos($current_map[$key]['field'], 'field_pfizer_auth_') === 0) {
+      unset($current_map[$key]);
+    }
+  }
+  variable_set('rpx_profile_fields_map', $current_map);
+}
+
+/**
+ * Create field in user entity.
+ */
+function _pfizer_auth_create_field($field_name, $field_label) {
+  if (!field_info_field($field_name)) {
+    // Create field
+    $field = array(
+      'field_name' => $field_name,
+      'type' => 'text_long',
+    );
+    $field = field_create_field($field);
+
+    // Create relationship between field and user entity.
+    $instance = array(
+      'field_name' => $field_name,
+      'entity_type' => 'user',
+      'bundle' => 'user',
+      'label' => $field_label,
+      'description' => 'Information provided by Pfizer Authentication',
+      'widget' => array('type' => 'textfield'),
+    );
+    field_create_instance($instance);
+  }
+}
+
+/**
+ * Get field mapping information.
+ */
+function _pfizer_auth_get_rpx_field_mapping($title, $path) {
+  module_load_include('inc', 'rpx_ui', 'rpx_ui.admin');
+  $profile_field_mapping = array(
+    'title' => $title,
+    'path' => $path,
+    'parsed_path' => serialize(_rpx_parse_path($path)),
+  );
+  return $profile_field_mapping;
+}

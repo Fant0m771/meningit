@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the meningitis_article feature.
+ */
+
+include_once 'meningitis_article.features.inc';

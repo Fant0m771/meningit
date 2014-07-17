@@ -1,0 +1,179 @@
+<?php
+
+/**
+ * @file
+ * Deploy Auto Plan module functions.
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function deploy_auto_plan_permission() {
+  return array(
+    'administer deploy plan auto' => array(
+      'title' => t('Administer Automagic Deployment Plans'),
+      'description' => t('Configure automagic deployment plans settings.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function deploy_auto_plan_menu() {
+  $items = array();
+
+  $items['admin/config/content/deploy-auto-plan'] = array(
+    'title' => 'Automagic Deployment Plan',
+    'description' => 'Administer automagic deployment plans',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('deploy_auto_plan_settings'),
+    'access arguments' => array('administer deploy plan auto'),
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_entity_insert().
+ */
+function deploy_auto_plan_entity_insert($entity, $type) {
+  _deploy_auto_plan_entity_save($entity, $type);
+}
+
+/**
+ * Implements hook_entity_update().
+ */
+function deploy_auto_plan_entity_update($entity, $type) {
+  _deploy_auto_plan_entity_save($entity, $type);
+}
+
+/* *
+ * Implements hook_entity_delete()
+ * /
+// This isn't needed as it is handled by deploy.manager out of the box.
+function deploy_auto_plan_entity_delete($entity, $type) {
+}
+*/
+
+/**
+ * Admin settings form.
+ */
+function deploy_auto_plan_settings($form, $form_state) {
+
+  $plans = _deploy_auto_plan_plans_list();
+
+  if (!count($plans)) {
+    $msg = t('No deployment plans configured.');
+    if (module_exists('deploy_ui') && user_access('administer deployments')) {
+      $url = url('admin/structure/deploy/plans');
+      $msg = t('No deployment plans configured. <a href="!url">Add a plan</a>.', array('!url' => $url));
+    }
+    return array('text' => array('#markup' => $msg));
+  }
+
+  $form['text'] = array(
+    '#markup' => t('Select which deployment plan all modified entities should be added to.'),
+  );
+
+  $form['deploy_auto_plan_name'] = array(
+    '#type' => 'select',
+    '#title' => t('Plan'),
+    '#empty_option' => t('- None -'),
+    '#options' => $plans,
+    '#default_value' => variable_get('deploy_auto_plan_name', NULL),
+  );
+
+  $form['entity_type_text'] = array(
+    '#markup' => t('Select which types of entities will be automatically added to the plan.'),
+  );
+
+  $form['deploy_auto_plan_entity_types'] = array(
+    '#type' => 'select',
+    '#multiple' => TRUE,
+    '#title' => 'Entity Types',
+    '#options' => _deploy_auto_plan_entity_types(),
+    '#default_value' => variable_get('deploy_auto_plan_entity_types', _deploy_auto_plan_entity_types_defaults()),
+  );
+
+  return system_settings_form($form);
+}
+
+/**
+ * Handles an entity being saved.
+ *
+ * @param $entity
+ *   The entity object.
+ * @param $type
+ *   The type of entity being updated (i.e. node, user, comment).
+ */
+function _deploy_auto_plan_entity_save($entity, $type) {
+  $plan_name = variable_get('deploy_auto_plan_name', NULL);
+  if (!$plan_name) {
+    return;
+  }
+
+  $info = entity_get_info($type);
+  if (empty($info['entity keys']['uuid'])) {
+    // we only care about entities with UUIDs.
+    return;
+  }
+
+  $allowed_entity_types = variable_get('deploy_auto_plan_entity_types', _deploy_auto_plan_entity_types_defaults());
+  if (!isset($allowed_entity_types[$type])) {
+    // only include entities whose types are selected in the admin
+    return;
+  }
+
+  deploy_manager_add_to_plan($plan_name, $type, $entity);
+}
+
+/**
+ * Fetches a list of deployment plans.
+ *
+ * @return array
+ *   The list of available plans.
+ */
+function _deploy_auto_plan_plans_list() {
+  $options = array();
+  $conditions = array('aggregator_plugin' => 'DeployAggregatorManaged');
+
+  $plans = deploy_plan_load_all($conditions);
+  foreach ($plans as $plan) {
+    $options[$plan->name] = $plan->title;
+  }
+
+  return $options;
+}
+
+/**
+ * Fetches a list of formatted entity types.
+ *
+ * @return array
+ *    The list of all entity types in the site.
+ *    Returns 'name' => 'label'.
+ */
+
+function _deploy_auto_plan_entity_types() {
+  $entity_types = entity_get_info();
+  $types = array();
+  foreach ($entity_types as $entity_type => $attributes) {
+    $types[$entity_type] = $attributes['label'];
+  }
+  return $types;
+}
+
+/**
+ * Fetches default values for the deploy_auto_plan_entity_types variable.
+ *
+ * @return array
+ *    The default value which is all entity types.
+ */
+function _deploy_auto_plan_entity_types_defaults() {
+  $entity_types = _deploy_auto_plan_entity_types();
+  $default_values = array();
+  foreach ($entity_types as $entity_type => $entity_label) {
+    $default_values[$entity_type] = $entity_type;
+  }
+  return $default_values;
+}

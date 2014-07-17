@@ -1,0 +1,15 @@
+name = Pfizer Authentication
+description = Provides Authentication by Pfizer HCP and Employees through Janrain Engage.
+dependencies[] = rpx_core (2.2)
+dependencies[] = rpx_ui (2.2)
+dependencies[] = list
+package = Janrain Engage
+core = 7.x
+version = "7.x-1.1"
+
+configure = admin/config/people/pfizer-auth
+
+files[] = pfizer_auth.install
+files[] = pfizer_auth.module
+files[] = pfizer_auth.admin.inc
+files[] = pfizer_auth.field.inc

@@ -1,0 +1,16 @@
+name = Pfizer Connect Authentication
+description = Provides Authentication by Pfizer Connect through Janrain Engage.
+dependencies[] = rpx_core
+dependencies[] = rpx_ui
+dependencies[] = token
+package = Janrain Engage
+core = 7.x
+version = "7.x-1.1"
+
+configure = admin/config/people/rpx/pfizer-connect
+
+files[] = pfizer_connect.module
+files[] = pfizer_connect.install
+files[] = pfizer_connect.admin.inc
+files[] = pfizer_connect.tokens.inc
+files[] = pfizer_connect.field.inc

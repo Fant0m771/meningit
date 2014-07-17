@@ -1,0 +1,13 @@
+<?php
+
+/**
+ * @file
+ * Pfizer encrypt module installation functions.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function pfizer_encrypt_install() {
+  variable_set('encrypt_default_method', 'pfizer_encrypt');
+}

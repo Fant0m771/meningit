@@ -1,0 +1,268 @@
+<?php
+/**
+ * @file
+ * Pfizer Connect Authentication module.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function pfizer_connect_menu() {
+  $items = array();
+
+  // Administer module
+  $items['admin/config/people/rpx/pfizer-connect'] = array(
+    'title' => 'Pfizer Connect Settings',
+    'description' => 'Configure Pfizer Connect Authentication settings.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('pfizer_connect_admin_settings'),
+    'type' => MENU_NORMAL_ITEM,
+    'access arguments' => array('administer pfizer connect authentication settings'),
+    'file' => 'pfizer_connect.admin.inc',
+  );
+
+  // Cross Domain Receiver page
+  $items['xdreceiver'] = array(
+    'title' => 'Pfizer Connect',
+    'page callback' => 'pfizer_connect_xd_receiver',
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('access content'),
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_preprocess_html().
+ */
+function pfizer_connect_preprocess_html(&$vars) {
+  $module_path = drupal_get_path('module', 'pfizer_connect');
+
+  // Add Integration javascript file
+  drupal_add_js(drupal_get_path('module', 'pfizer_connect') . '/pfizer_connect.js', array('type' => 'file', 'scope' => 'footer'));
+
+
+  // Expose site languages and Site IDs
+  $languages = language_list();
+  $country_settings = variable_get('pfizer_connect_country_settings', array());
+  foreach ($languages as $language_code => $language) {
+    $country_settings[$language_code]['prefix'] = $language->prefix;
+  }
+  drupal_add_js(array(
+    'pfizerConnect' => array(
+      'countrySettings' => $country_settings,
+      'currentLanguage' => $GLOBALS['language']->language,
+    )
+  ), 'setting');
+
+  // Add Janrain Federate js
+  if (variable_get('pfizer_connect_sso_enabled', FALSE)) {
+    drupal_add_js(variable_get('pfizer_connect_js_url_sso', NULL), array('type' => 'external', 'scope' => 'footer'));
+    if ($js_pfizer_sso = variable_get('pfizer_connect_js_url_engage_sso', NULL)) {
+      drupal_add_js($js_pfizer_sso, array('type' => 'external', 'scope' => 'footer'));
+    }
+    else {
+      drupal_add_js($module_path . '/javascript/pfizer-sso.js', array('type' => 'file', 'scope' => 'footer'));
+    }
+  }
+
+  // Add Engage custom javascript file - Managed Cloud
+  if (!user_is_logged_in()) {
+    drupal_add_js(variable_get('pfizer_connect_js_url_engage_main', NULL), array('type' => 'external', 'scope' => 'footer'));
+  }
+}
+
+/**
+ * Implements hook_permission().
+ */
+function pfizer_connect_permission() {
+  return array(
+    'administer pfizer connect authentication settings' => array(
+      'title' => t('Administer Pfizer Connect Authentication settings'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function pfizer_connect_theme() {
+  return array(
+    'pfizer_connect_country_settings' => array(
+      'render element' => 'form',
+      'file' => 'pfizer_connect.admin.inc',
+    ),
+  );
+}
+
+/**
+ * Implements hook_help().
+ */
+function pfizer_connect_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#pfizer_connect':
+      $output = t('<h3>Required modules</h3>
+        <ul>
+          <li>Janrain Engage Core</li>
+          <li>Janrain Engage UI</li>
+          <li>Token</li>
+        </ul>
+
+        <h3>Setup Step by Step</h3>
+        <ol>
+          <li><strong>Make sure your domains are whitelisted in Janrain Engage Control Panel.</strong> Janrain application verifies the request referrer.</li>
+          <li><strong>Configure <a href="@url-account" title="Account settings">Account settings</a></strong>
+            <ul>
+              <li>Who can register accounts? Choose "Visitors"</li>
+              <li>Uncheck "Require e-mail verification when a visitor creates an account"</li>
+            </ul>
+          </li>
+          <li><strong>Configure <a href="@url-janrain" title="Janrain Engage">Janrain Engage</a> module</strong>
+            <ul>
+              <li>Setup > API Key</li>
+              <li>Authentication > Uncheck "Enable Janrain Engage sign-in on login forms"</li>
+              <li>Authentication > Check "Request extended profile data"</li>
+              <li>Verification E-mail > Uncheck "Bypass email verification for Engage registration"</li>
+            </ul>
+          </li>
+          <li><strong>Configure <a href="@url-pfizer-connect" title="Pfizer Connect Authentication settings">Pfizer Connect Authentication settings</a></strong>. Set Site IDs/Language Codes and External javascripts files.</li>
+        </ol>
+
+        <h3>Usage example</h3>
+        <ul>
+          <li style="margin-bottom:10px;"><strong>Login feature:</strong> In a custom javascript file, add the following code to be called by event handler (like a button click)><br />
+            <pre style="margin-left:30px;">
+jQuery(".confirm-and-continue").click(function(){
+  var selectedLang = "en"; // English language code in Drupal
+  var siteId = PfizerConnect.getSiteId(selectedLang);
+  var langCode = PfizerConnect.getLanguageCode(selectedLang);
+  var destination = "node/123";
+  var langPrefix = PfizerConnect.getLanguagePrefix(selectedLang);
+  PfizerConnect.setupAndConnect(siteId, langCode, destination, langPrefix);
+});</pre>
+            Tips: <em>destination</em> and <em>langPrefix</em> parameters are not required. The default values are provided by the module.
+          </li>
+          <li style="margin-bottom:10px;"><strong>Logout feature:</strong> In a custom javascript file, add the following code to be called when the user clicks on the logout link:<br />
+            <pre style="margin-left:30px;">
+jQuery("a.logout-link").attr("href", "javascript:void(0);").click(function(event){
+  event.preventDefault();
+  PfizerConnect.logout();
+});</pre>
+            The user should be logged out from the current application and also from all of associated applications.<br />
+            Tips: <em>javascript:void(0);</em> is used to prevent the user to open the default logout page (/user/logout).
+          </li>
+          <li style="margin-bottom:10px;"><strong>User information values (using interface):</strong> To display user information provided by Pfizer Connect Profile in the application, you can use <strong>tokens</strong> inside the content of nodes/blocks/etc to be replaced by the values available.<br />
+            <ul>
+<li><em>[pfizer-user:profile:pr]</em> is replaced by the profession.</li>
+<li><em>[pfizer-user:profile:fn]</em> is replaced by the first name.</li>
+<li><em>[pfizer-user:profile:ln]</em> is replaced by the last name.</li>
+<li><em>[pfizer-user:profile:#]</em> the # is based on the parameter provided by Pfizer Connect Profile.</li></ul>
+            In order to use the tokens, you need to enable the "Replace tokens" filter in the <a href="@url-text-formats" title="Text formats">Text formats</a> settings.<br />
+            Tips: These values depends on the user and the authentication system, so not all the users have these data available. If no value is provided to the token, it will be replaced by an empty string.<br />
+          </li>
+          <li style="margin-bottom:10px;"><strong>User information values (using PHP):</strong> This module also provides a public PHP function to get the user data provided by Pfizer Connect Profile. Examples:<br />
+            <ul>
+<li><em>pfizer_connect_get_user_info("pr");</em> is replaced by the profession.</li>
+<li><em>pfizer_connect_get_user_info("fn");</em> is replaced by the first name.</li>
+<li><em>pfizer_connect_get_user_info("ln");</em> is replaced by the last name.</li>
+<li><em>pfizer_connect_get_user_info("#");</em> the # is based on the parameter provided by Pfizer Connect Profile.</li></ul>
+          </li>
+        </ul>',
+      array(
+        '@url-account' => url('admin/config/people/accounts/settings'),
+        '@url-janrain' => url('admin/config/people/rpx'),
+        '@url-pfizer-connect' => url('admin/config/people/rpx/pfizer-connect'),
+        '@url-text-formats' => url('admin/config/content/formats'),
+      ));
+
+      return $output;
+  }
+}
+
+/**
+ * Callback of Cross Domain Receiver page
+ */
+function pfizer_connect_xd_receiver() {
+  $tag_script = theme('html_tag', array(
+    'element' => array(
+      '#tag' => 'script',
+      '#attributes' => array('src' => variable_get('pfizer_connect_js_url_xd_receiver', NULL)),
+      '#value' => '',
+    ),
+  ));
+  $tag_html = theme('html_tag', array(
+    'element' => array(
+      '#tag' => 'html',
+      '#value' => $tag_script,
+    ),
+  ));
+  print $tag_html;
+  return NULL;
+}
+
+/**
+ * Get Site Id field for a specific country
+ * @param <string> $language_code Drupal's default language code
+ * @return <string> Site Id
+ */
+function pfizer_connect_get_site_id($language_code) {
+  static $country_settings;
+  if ($country_settings == NULL) {
+    $country_settings = variable_get('pfizer_connect_country_settings', array());
+  }
+  if (isset($country_settings[$language_code]['site_id'])) {
+    return $country_settings[$language_code]['site_id'];
+  }
+  return NULL;
+}
+
+/**
+ * Get language code field for a specific country
+ * @param <string> $language_code Drupal's default language code
+ * @return <string> language code
+ */
+function pfizer_connect_get_language_code($language_code) {
+  static $country_settings;
+  if ($country_settings == NULL) {
+    $country_settings = variable_get('pfizer_connect_country_settings', array());
+  }
+  if (isset($country_settings[$language_code]['language_code'])) {
+    return $country_settings[$language_code]['language_code'];
+  }
+  return NULL;
+}
+
+/**
+ * Get user information
+ * @param <string> $parameter Name of parameter, like
+ *   "fn" for first name
+ *   "ln" for last name
+ * @param <string> $uid user id to get the information from. Default value is the current logged user.
+ * @return <string> Information value
+ */
+function pfizer_connect_get_user_info($parameter, $uid = NULL) {
+  $account = NULL;
+  if ($uid == NULL && user_is_logged_in()) {
+    global $user;
+    $account = user_load($user->uid);
+  } elseif ($uid != NULL) {
+    $account = user_load($uid);
+  }
+
+  if ($account != NULL) {
+    if (isset($account->pfizer_profile['und'][0]['value'])) {
+
+      // Get parameters from profile data
+      $rpx_data_raw = $account->pfizer_profile['und'][0]['value'];
+
+      static $rpx_data;
+      if (!isset($rpx_data["{$account->uid}"])) {
+        parse_str($rpx_data_raw, $rpx_data["{$account->uid}"]);
+      }
+
+      if (isset($rpx_data["{$account->uid}"][$parameter])) {
+        return check_plain($rpx_data["{$account->uid}"][$parameter]);
+      }
+    }
+  }
+}

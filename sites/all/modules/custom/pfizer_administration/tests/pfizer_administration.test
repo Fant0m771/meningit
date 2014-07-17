@@ -1,0 +1,72 @@
+<?php
+/**
+ * @file
+ * Tests for pfizer_administration.
+ */
+
+/**
+ * Tests the functionality of the Pfizer Administration module.
+ */
+class PfizerAdministrationTestCase extends DrupalWebTestCase {
+  protected $privilegedUser;
+
+  /**
+   * Make Drupal & Simpletest aware of these test cases.
+   */
+  public static function getInfo() {
+    // Note: getInfo() strings are not translated with t().
+    return array(
+      'name' => 'Pfizer Administration',
+      'description' => 'Ensures that the Pfizer Administration Module works.',
+      'group' => 'Pfizer',
+    );
+  }
+
+  /**
+   * Setup our environment for testing.
+   */
+  public function setUp() {
+    // Enable any modules required for the test. This should be an array of
+    // module names.
+    parent::setUp(
+      array(
+        'pfizer_administration',
+        'dashboard',
+        'admin_menu',
+        'ctools',
+        'features',
+        'module_filter',
+        'views',
+      )
+    );
+    // Create and log in our privileged user.
+    $this->privilegedUser = $this->drupalCreateUser(array(
+      'administer content types',
+      'administer site configuration',
+      'access dashboard',
+      'administer nodes',
+      'bypass node access',
+    ));
+    $this->drupalLogin($this->privilegedUser);
+  }
+
+  /**
+   * Tests that revision log message is required on node creation and edit.
+   */
+  public function testPfizerAdministrationCheckEnforceRevision() {
+    // Create node to edit.
+    $edit = array();
+    $edit['title'] = $this->randomName(8);
+    $edit["body[und][0][value]"] = $this->randomName(16);
+    $this->drupalPost('node/add/page', $edit, t('Save'));
+    $this->assertText(t('Revision log message field is required.'), 'Revision Log Enforced on node creation.');
+  }
+
+  /**
+   * Tests that the dashboard contains the view blocks.
+   */
+  public function testPfizerAdministrationCheckDashboard() {
+    $this->drupalGet('admin/dashboard');
+    $this->assertText(t('Dashboard'), 'Dashboard is present.');
+  }
+}

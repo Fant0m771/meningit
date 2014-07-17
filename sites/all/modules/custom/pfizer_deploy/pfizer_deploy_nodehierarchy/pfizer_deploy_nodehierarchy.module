@@ -1,0 +1,87 @@
+<?php
+/**
+ * @file
+ * Code for the Pfizer Deploy Node Hierarchy module.
+ */
+
+/**
+ * Implements hook_entity_uuid_load().
+ */
+function nodehierarchy_entity_uuid_load(&$entities, $entity_type) {
+  if ($entity_type == 'node') {
+    foreach ($entities as $entity) {
+      if (!empty($entity->nodehierarchy_menu_links)) {
+        foreach ($entity->nodehierarchy_menu_links as $i => $node_hierarchy) {
+          if (isset($node_hierarchy['pnid'])) {
+            // Translate parent nid into uuid if this is a child.
+            $parent_uuid = entity_get_uuid_by_id($entity_type, array($node_hierarchy['pnid']));
+            $entity->nodehierarchy_menu_links[$i]['pnid'] = $parent_uuid[$node_hierarchy['pnid']];
+          }
+          // Translate nid into uuid.
+          $entity->nodehierarchy_menu_links[$i]['nid'] = $entity->uuid;
+          $entity->nodehierarchy_menu_links[$i]['link_path'] = 'node/' . $entity->uuid;
+        }
+      }
+      if (variable_get('pfizer_deploy_debug', 0)) {
+        watchdog('node hierarchy entity uuid load', '<pre>%args</pre>', array('%args' => print_r($entities, TRUE)));
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_uuid_presave().
+ */
+function nodehierarchy_entity_uuid_presave(&$entity, $entity_type) {
+  if ($entity_type == 'node') {
+    if (!empty($entity->nodehierarchy_menu_links)) {
+      foreach ($entity->nodehierarchy_menu_links as $i => $node_hierarchy) {
+        if (isset($node_hierarchy['pnid'])) {
+          // Translate parent uuid into nid if this is a child.
+          $parent_id = entity_get_id_by_uuid($entity_type, array($node_hierarchy['pnid']));
+          $entity->nodehierarchy_menu_links[$i]['pnid'] = $parent_id[$node_hierarchy['pnid']];
+          $entity->nodehierarchy_menu_links[$i]['plid'] =  _get_mlid('node/' . $parent_id[$node_hierarchy['pnid']], $node_hierarchy['menu_name']);
+        }
+        // Translate uuid into nid.
+        $entity->nodehierarchy_menu_links[$i]['nid'] = $entity->nid;
+        $entity->nodehierarchy_menu_links[$i]['link_path'] = 'node/' . $entity->nid;
+
+        if (empty($entity->is_new)) {
+          $menu_exists = _get_mlid('node/' . $entity->nid, $node_hierarchy['menu_name']);
+          if (isset($menu_exists)) {
+            // In theory you might want to update an exist mlid.
+            // But in practice passing in the exact same mlid will create a new one.
+            // $entity->nodehierarchy_menu_links[$i]['mlid'] = $menu_exists;
+            // For now:
+            unset($entity->nodehierarchy_menu_links[$i]);
+          }
+        }
+        else {
+          $entity->nodehierarchy_menu_links[$i]['mlid'] = NULL;
+          $entity->nodehierarchy_menu_links[$i]['nid'] = NULL;
+          $entity->nodehierarchy_menu_links[$i]['link_path'] = NULL;
+        }
+      }
+      // Temporary cleanup in case all links are unset above.
+      if (empty($entity->nodehierarchy_menu_links)) {
+        unset($entity->nodehierarchy_menu_links);
+      }
+      if (variable_get('pfizer_deploy_debug', 0)) {
+        watchdog('node hierarchy entity uuid presave', '<pre>%args</pre>', array('%args' => print_r($entity, TRUE)));
+      }
+    }
+  }
+}
+
+/**
+ * Custom function to return an mlid given a path and menu name
+ */
+function _get_mlid($path, $menu_name) {
+  $mlid = db_select('menu_links' , 'ml')
+    ->condition('ml.link_path' , $path)
+    ->condition('ml.menu_name',$menu_name)
+    ->fields('ml' , array('mlid'))
+    ->execute()
+    ->fetchField();
+  return $mlid;
+}

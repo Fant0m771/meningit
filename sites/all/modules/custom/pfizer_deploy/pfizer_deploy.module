@@ -1,0 +1,79 @@
+<?php
+/**
+ * @file
+ * Code for the Pfizer Deploy feature.
+ */
+
+include_once 'pfizer_deploy.features.inc';
+
+/**
+ * Implements hook_menu().
+ */
+function pfizer_deploy_menu() {
+  $items = array();
+  $items['admin/config/pfizer/pfizer_deploy'] = array(
+    'title' => 'Pfizer Deploy',
+    'description' => 'Configure Pfizer Deploy.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('pfizer_deploy_admin_form'),
+    'access arguments' => array('administer site'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'pfizer_deploy.admin.inc',
+  );
+  return $items;
+}
+
+/**
+ * Function to return all entity types except user, formatted in the proper way
+ */
+
+function pfizer_deploy_get_entity_type_defaults() {
+  $defaults = _deploy_auto_plan_entity_types_defaults();
+  unset($defaults['user']);
+  return $defaults;
+}
+
+/**
+ * Implements hook_entity_uuid_load().
+ */
+function pfizer_deploy_entity_uuid_load(&$entities, $entity_type) {
+  if (variable_get('pfizer_deploy_debug', 0)) {
+    watchdog('DEBUG entity uuid load: '. $entity_type, '<pre>%args</pre>', array('%args' => print_r($entities, TRUE)));
+  }
+}
+
+/**
+ * Implements hook_entity_uuid_presave().
+ */
+function pfizer_deploy_entity_uuid_presave(&$entity, $entity_type) {
+  if (variable_get('pfizer_deploy_debug', 0)) {
+    watchdog('DEBUG entity uuid presave: '. $entity_type, '<pre>%args</pre>', array('%args' => print_r($entity, TRUE)));
+  }
+}
+
+/**
+ * Implements hook_entity_uuid_save().
+ */
+function pfizer_deploy_entity_uuid_save($entity, $entity_type) {
+  if (variable_get('pfizer_deploy_debug', 0)) {
+    watchdog('DEBUG entity uuid save: '. $entity_type, '<pre>%args</pre>', array('%args' => print_r($entity, TRUE)));
+  }
+}
+
+/**
+ * Implements hook_node_insert().
+ */
+function pfizer_deploy_node_insert($node) {
+  if (variable_get('pfizer_deploy_debug', 0)) {
+    watchdog('DEBUG node insert', '<pre>%args</pre>', array('%args' => print_r($node, TRUE)));
+  }
+}
+
+/**
+ * Implements hook_node_update().
+ */
+function pfizer_deploy_node_update($node) {
+  if (variable_get('pfizer_deploy_debug', 0)) {
+    watchdog('DEBUG node update', '<pre>%args</pre>', array('%args' => print_r($node, TRUE)));
+  }
+}

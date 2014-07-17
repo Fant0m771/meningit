@@ -1,0 +1,313 @@
+<?php
+/**
+ * @file
+ * Pfizer Authentication module.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function pfizer_auth_menu() {
+  $items = array();
+
+  // Administer module.
+  $items['admin/config/people/pfizer-auth'] = array(
+    'title' => 'Pfizer Authentication',
+    'description' => 'Configure Pfizer Authentication settings.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('pfizer_auth_admin_settings'),
+    'access arguments' => array('administer pfizer authentication settings'),
+    'file' => 'pfizer_auth.admin.inc',
+  );
+
+  // Redirect login form.
+  $items['pfizer-auth/redirect'] = array(
+    'title' => 'Pfizer Authentication redirect',
+    'page callback' => 'pfizer_auth_redirect_page',
+    'type' => MENU_CALLBACK,
+    'access callback' => TRUE,
+    'delivery callback' => 'pfizer_auth_delivery_raw_page'
+  );
+
+  // Redirect login form.
+  $items['pfizer-auth/login-failure'] = array(
+    'title' => 'Pfizer Authentication',
+    'page callback' => 'pfizer_auth_login_failure',
+    'type' => MENU_CALLBACK,
+    'access callback' => TRUE,
+  );
+
+  // Cross Domain Receiver page.
+  $items['xdreceiver'] = array(
+    'title' => 'Pfizer Authentication Cross Domain receiver',
+    'page callback' => 'pfizer_auth_xd_receiver',
+    'type' => MENU_CALLBACK,
+    'access callback' => TRUE,
+  );
+
+  return $items;
+}
+
+
+/**
+ * Implements hook_preprocess_html().
+ */
+function pfizer_auth_preprocess_html() {
+  // Include javascript files and settings.
+  _pfizer_auth_include_javascripts();
+
+  // Include default PAC login form style.
+  if (variable_get('pfizer_auth_pac_default_form_style', FALSE)) {
+    $module_path = drupal_get_path('module', 'pfizer_auth');
+    drupal_add_css($module_path . '/files/pfizer_auth.css');
+  }
+}
+
+/**
+ * Implements hook_permission().
+ */
+function pfizer_auth_permission() {
+  return array(
+    'administer pfizer authentication settings' => array(
+      'title' => t('Administer Pfizer Authentication settings'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function pfizer_auth_block_info() {
+  $blocks = array();
+  $blocks['pfizer-auth-pac-login-form'] = array(
+    'info' => t('[Pfizer Authentication] PAC Login form'),
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function pfizer_auth_block_view($delta = '') {
+  $block = array();
+  switch ($delta) {
+    case 'pfizer-auth-pac-login-form':
+      $block['content'] = drupal_get_form('pfizer_auth_pac_idp_initiated_login_form');
+      break;
+  }
+  return $block;
+}
+
+/**
+ * Implements delivery callback raw page.
+ * Final page will override page templates.
+ */
+function pfizer_auth_delivery_raw_page($page_callback_result) {
+  $page = array(
+    '#theme_wrappers' => array('html'),
+    'content' => $page_callback_result,
+  );
+
+  print drupal_render($page);
+}
+
+/**
+ * Callback of Cross Domain Receiver page.
+ */
+function pfizer_auth_xd_receiver() {
+
+  // Add Cross Domain receiver javascript only if SSO is enabled.
+  $tag_script = '';
+  $sso_is_enabled = variable_get('pfizer_auth_sso_enabled', FALSE);
+  if ($sso_is_enabled) {
+    // Call xdreceiver javascript.
+    $tag_script = theme('html_tag', array(
+      'element' => array(
+        '#tag' => 'script',
+        '#attributes' => array('src' => variable_get('pfizer_auth_js_url_xd_receiver', NULL)),
+        '#value' => '',
+      ),
+    ));
+  }
+
+  // Wrap page content with <html> tag.
+  $tag_html = theme('html_tag', array(
+    'element' => array(
+      '#tag' => 'html',
+      '#value' => $tag_script,
+    ),
+  ));
+
+  // Print html output and return null to bypass rendering the page by the theme.
+  print $tag_html;
+  return NULL;
+}
+
+/**
+ * Callback of Redirect login form.
+ */
+function pfizer_auth_redirect_page() {
+  return '';
+}
+
+/**
+ * Callback of login form.
+ */
+function pfizer_auth_pac_idp_initiated_login_form() {
+  $form = array();
+
+  $form['#action'] = url(variable_get('pfizer_auth_pac_login_url', NULL));
+
+  $success_url = variable_get('pfizer_auth_pac_login_success_url', NULL);
+  $success_url = str_replace('[pfizer-auth:token-handler-url]', url('rpx/token_handler', array('absolute' => TRUE)), $success_url);
+  $form['successurl'] = array(
+    '#type' => 'hidden',
+    '#value' => url($success_url),
+    '#weight' => 0,
+  );
+
+  $form['failureurl'] = array(
+    '#type' => 'hidden',
+    '#value' => url('pfizer-auth/login-failure', array('absolute' => TRUE, 'query' => array('destination' => current_path()))),
+    '#weight' => 0,
+  );
+
+  if (isset($_SESSION['pfizer_auth']['pac_login_error'])) {
+    $form['error_message'] = array(
+      '#markup' => '<div class="errors">' . t($_SESSION['pfizer_auth']['pac_login_error']) . '</div>',
+      '#weight' => 10 + variable_get('pfizer_auth_pac_error_weight', 0) - 0.5,
+    );
+    unset($_SESSION['pfizer_auth']['pac_login_error']);
+  }
+
+  $form['username'] = array(
+    '#title' => t('Username'),
+    '#type' => 'textfield',
+    '#weight' => 11,
+  );
+
+  $form['password'] = array(
+    '#title' => t('Password'),
+    '#type' => 'password',
+    '#weight' => 12,
+  );
+
+  $form['submit'] = array(
+    '#prefix' => '<div class="form-item pac-login">',
+    '#value' => t('Login'),
+    '#type' => 'submit',
+    '#suffix' => '</div>',
+    '#weight' => 13,
+  );
+
+  $register_url = variable_get('pfizer_auth_pac_register_url', NULL);
+  $register_url = str_replace('[pfizer-auth:token-handler-url:encoded]', urlencode(url('rpx/token_handler', array('absolute' => TRUE))), $register_url);
+  $form['register'] = array(
+    '#prefix' => '<div class="form-item pac-register">',
+    '#markup' => '<span>' . t("Don't have an account?") . '</span> ' . l(t('Register now'), $register_url),
+    '#suffix' => '</div>',
+    '#weight' => 14,
+  );
+
+  return $form;
+}
+
+
+/**
+ * Callback of login failure page.
+ */
+function pfizer_auth_login_failure() {
+  $error_code = isset($_REQUEST['status']) ? $_REQUEST['status'] : NULL;
+  $error_list = variable_get('pfizer_auth_pac_error_list', array());
+  if ($error_code && count($error_list) && isset($error_list[$error_code])) {
+    $_SESSION['pfizer_auth']['pac_login_error'] = $error_list[$error_code];
+  }
+
+  $destination = $_GET['destination'];
+  if (!isset($destination) || !_pfizer_auth_login_is_domain_whitelisted($destination)) {
+    $destination = '<front>';
+  }
+
+  unset($_GET['destination']);
+  drupal_static_reset('drupal_get_destination');
+  drupal_goto($destination);
+}
+
+/**
+ * Checks whether the domain is in the whitelist.
+ */
+function _pfizer_auth_login_is_domain_whitelisted($destination) {
+  $whitelisted_domains = explode("\n", variable_get('pfizer_auth_whitelisted_domains', ''));
+  global $base_url;
+  $domain = parse_url($destination, PHP_URL_HOST);
+  $current_domain = parse_url($base_url, PHP_URL_HOST);
+
+  // Relative URLs should be allowed.
+  if ($destination[0] == '/' || $domain == $current_domain) {
+    return TRUE;
+  }
+
+  return in_array($domain, array_map('trim', $whitelisted_domains));
+}
+
+/**
+ * Include javascript files and settings.
+ */
+function _pfizer_auth_include_javascripts() {
+
+  // Expose module settings to javascript.
+  drupal_add_js(array('pfizerAuthentication' => array(
+    'userIsLoggedIn' => user_is_logged_in(),
+    'SAMLProviders' => pfizer_auth_get_saml_providers(),
+    'loginFormInterface' => variable_get('pfizer_auth_login_form_interface', 'modal'),
+    'PACLogoutUrl' => variable_get('pfizer_auth_pac_logout_url', NULL),
+    'segment' => variable_get('pfizer_auth_segment', 'Pfizer_com_idp_pfizer_auth'),
+    'ssoServer' => variable_get('pfizer_auth_sso_server', 'https://dm-federate.pfizer.com'),
+  )), 'setting');
+
+  $module_path = drupal_get_path('module', 'pfizer_auth');
+
+  // Enable Single Sign On.
+  if (variable_get('pfizer_auth_sso_enabled', FALSE)) {
+
+    // Add Janrain Federate js.
+    drupal_add_js(variable_get('pfizer_auth_js_url_sso', NULL), 'external');
+
+    // Add Pfizer SSO js.
+    if ($js_pfizer_sso = variable_get('pfizer_auth_js_url_pfizer_sso', NULL)) {
+      drupal_add_js($js_pfizer_sso, 'external');
+    }
+    else {
+      drupal_add_js($module_path . '/javascript/pfizer-sso.js', array('type' => 'file'));
+    }
+  }
+
+  // Add Integration javascript file.
+  drupal_add_js($module_path . '/pfizer_auth.js', array('type' => 'file', 'scope' => 'footer'));
+
+  if (!user_is_logged_in()) {
+
+    // Add UI dialog javascript library (modal support).
+    if (variable_get('pfizer_auth_login_form_interface', 'modal') == 'modal') {
+      drupal_add_library('system', 'ui.dialog');
+    }
+
+    // Add Pfizer Engage js.
+    if ($js_pfizer_engage = variable_get('pfizer_auth_js_url_pfizer_engage', NULL)) {
+      drupal_add_js($js_pfizer_engage, 'external');
+    }
+    else {
+      drupal_add_js($module_path . '/javascript/pfizer-engage.js', array('type' => 'file', 'scope' => 'footer'));
+    }
+  }
+}
+
+/**
+ * Get enabled SAML providers.
+ * @return <array> list of enabled SAML providers.
+ */
+function pfizer_auth_get_saml_providers() {
+  $saml_providers = variable_get('pfizer_auth_saml_providers', array());
+  $saml_providers = array_filter(array_values($saml_providers));
+  return $saml_providers;
+}

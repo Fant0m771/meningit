@@ -1,0 +1,116 @@
+<?php
+
+if(!defined('DOUBLECLICK_PREFIX')) {
+  define('DOUBLECLICK_PREFIX', "doubleclick_");
+}
+
+function doubleclick_menu() {
+
+  $items['admin/config/doubleclick'] = array(
+    'title' => 'DoubleClick',
+    'description' => 'Adjust doubleclick options.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('doubleclick_admin_form'),
+    'access arguments' => array('administer omniture configuration'),
+    'file' => 'doubleclick.admin.inc',
+  );
+
+  $items['admin/config/doubleclick/account_settings'] = array(
+    'title' => 'DoubleClick Settings',
+    'description' => 'Change DoubleClick settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('doubleclick_admin_form'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'file' => 'doubleclick.admin.inc',
+  );
+  
+  $items['admin/config/doubleclick/selector_onlick_javascript'] = array(
+    'title' => 'Javascript Settings',
+    'description' => 'Javascript to track events',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('doubleclick_javascript_form'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'doubleclick.admin.inc',
+  );
+  
+  $items['admin/config/doubleclick/selector_by_page'] = array(
+    'title' => 'By Page Settings',
+    'description' => 'By Page Code Settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('doubleclick_by_page_form'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'doubleclick.admin.inc',
+  );
+
+  return $items;
+}
+
+function _doubleclick_check_permissions() {
+
+  global $user;
+  // Check if we should track the currently active user's role.
+  if (is_array($user->roles)) {
+    foreach ($user->roles as $role) {
+      $role = str_replace(' ', '_', $role);
+    }
+  }  
+  return ($role == 'administrator');   
+}
+
+function doubleclick_page_alter(&$variables) {
+
+  module_load_include('inc', 'doubleclick', 'doubleclick.common');
+    
+  if (!_doubleclick_check_permissions()) {
+    _doubleclick_include_core_javascript();
+    _doubleclick_include_onload_javascript();
+    _doubleclick_include_onclick_javascript();
+  }
+}
+
+function doubleclick_block_info() {
+  $blocks['noscript'] = array(
+    'info' => t('DoubleClick Noscript Block'),
+    'status' => TRUE,
+    'region' => 'footer',
+    'cache' => DRUPAL_NO_CACHE,
+  );
+  
+  return $blocks;
+}
+
+/**
+ * Display No script block
+ * @param type $delta
+ * @return string 
+ */
+function doubleclick_block_view($delta = "") {
+  if (!_doubleclick_check_permissions()) {
+    module_load_include('inc', 'doubleclick', 'doubleclick.common');
+    $doubleclick_client_id = variable_get(DOUBLECLICK_PREFIX.'tracking_src');
+    $doubleclick_client_type = variable_get(DOUBLECLICK_PREFIX.'tracking_type');
+    $doubleclick_tracking_url = variable_get(DOUBLECLICK_PREFIX.'tracking_url');
+    $doubleclick_tracking_value = _doubleclick_get_value();
+    
+    $block = array();
+    switch ($delta) {
+      case 'noscript':
+        $block['content'] = '
+          <noscript>
+            <img src="' . $doubleclick_tracking_url . ';src='.$doubleclick_client_id.';type='.$doubleclick_client_type.';cat=visitmob;ord=1?" height="1" width="1" />
+        ';
+          if ($doubleclick_tracking_value) {
+            $block['content'] .= '<img src="' . $doubleclick_tracking_url . ';src='.$doubleclick_client_id.';type='.$doubleclick_client_type.';cat=pgview;u1='.$doubleclick_tracking_value.';ord=1?" height="1" width="1" />';
+          }
+        $block['content'] .= ' 
+          </noscript>
+        ';
+        break;
+    }
+    
+    return $block;
+  }
+}

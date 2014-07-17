@@ -1,0 +1,9 @@
+name = Google maps live search
+description = Enable to get stores on a given address
+package = pfizer
+version = "7.x-4.0"
+core = 7.x
+
+stylesheets[screen][] = styles/gmapslivesearch.css
+
+dependencies[] = list

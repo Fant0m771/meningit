@@ -1,0 +1,221 @@
+/**************** gmaps find a store module styles *****************/
+
+/**** form ****/
+
+div.address-field-submit-wrapper {
+  float: left;
+  width: 310px;
+}
+
+div.form-item-gmapslivesearch-field-address-to-search {
+  float: left;
+}
+
+div.error.inline-error{
+  float: right;
+}
+
+input#edit-gmapslivesearch-field-address-to-search {
+  padding-left: 3px;
+  width: 230px;
+  height: 20px;
+  line-height: 20px;
+}
+
+div.gmapslivesearch-box input#edit-submit {  
+  float: right;
+  margin: 0 5px;
+  height: 24px;
+  line-height: 100%;  
+  cursor: pointer; 
+}
+
+div.form-item-gmapslivesearch-field-stores-content-type {
+  float: left;
+}
+
+/* product selection list */
+ul.select-product {
+  float: left;
+  width: 275px;
+  border: 1px solid #CCC;
+  background: #F0F0F0;
+}
+
+ul.select-product li {
+  margin: 3px 0;
+  padding-left: 3px;
+}
+
+ul.select-product li a {
+  color: #000;
+}
+
+/* not results title */
+form#gmapslivesearch-buy-now-form h3 {
+  clear: left;
+}
+
+/**** end of form ****/
+
+/**** map and stores ****/
+div#gmapslivesearch-wrapper {
+  position: relative;
+  clear: left;
+  margin: 20px 0;
+}
+
+div#gmapslivesearch-loader  {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: -16px 0 0 -16px;
+  width: 32px;
+  height: 32px;
+  background: transparent url(../images/ajax-loader.gif) no-repeat top left ;
+}
+
+div#gmapslivesearch-map-results {
+  width: 750px;
+}
+
+div#searcher { 
+  display:none;
+}
+
+div#gmapslivesearch-map {
+  float:right;
+  width: 340px;
+  height: 370px;  
+}
+
+div.GMap_Title {
+  font-weight: bold;
+}
+
+/**** stores ****/
+div#gmapslivesearch-stores {
+  float:left;
+  width: 300px;
+  height:370px;
+}
+
+.jspContainer {
+  position: relative;
+  overflow: hidden;
+}
+
+.jspPane {  
+  position: absolute;
+}
+
+div.jspPane li {
+  overflow: hidden;
+  margin-bottom: 15px;
+}
+
+div#gmapslivesearch-stores div.GMap_Info {
+  float: right;
+  width: 88%;
+}
+
+a.centerMap {
+  float: left;
+}
+
+div#gmapslivesearch-stores a.share {
+  display: inline-block;
+  margin-left: 3px;
+  width: 16px;
+  height: 16px;
+  background: url(../images/mail.png) no-repeat;
+  color: transparent; 
+  font-size: 0;
+  line-height: 27px;
+}
+
+/* sidebar */
+.jspVerticalBar {
+  position: absolute;
+  top: 0;
+  right: 5px;
+  width: 11px;
+  height: 100%;
+}
+
+.jspTrack {
+  position: relative;
+  background: transparent url(../images/track.png) no-repeat top left ;
+}
+
+.jspDrag {
+  position: relative;
+  top: 0;
+  left: 1px;
+  height: 73px !important;
+  background: transparent url(../images/drag.png) no-repeat top left ;
+  cursor: pointer;
+}
+
+.jspHorizontalBar .jspTrack,
+.jspHorizontalBar .jspDrag {
+  float: left;
+  height: 100%;
+}
+
+/**** end of map and stores ****/
+
+/****  buy online block ****/
+
+div.buy-online-box-wrapper {
+  overflow-y: hidden;
+}
+
+form#gmapslivesearch-find-online-form a.gmapslivesearch-goto-online-store {
+  background: #ccc;
+  display: inline-block;
+  margin: 3px 0 0 14px;
+  padding: 0px 10px;
+  height: 18px;
+  border: 1px solid;
+  color: black;
+  cursor: pointer;
+  text-align: center;
+  text-transform: capitalize;
+  line-height: 20px;
+}
+
+form#gmapslivesearch-find-online-form a.gmapslivesearch-goto-online-store:hover {
+  border-color: #018FE2;
+  color: #018FE2;
+  text-decoration: none;
+}
+
+div.form-item-gmapslivesearch-field-stores-search-find-online,
+a.gmapslivesearch-goto-online-store {
+  float: left;
+}
+
+/**** end of buy online block ****/
+
+/**** generic ****/
+div#gmapslivesearch-map .list-link,
+div#gmapslivesearch-stores .map-link {
+  display: none;
+}
+
+/* store selection and product selection combo box styles */
+form#gmapslivesearch-buy-now-form select.form-select,
+form#gmapslivesearch-find-online-form select.gmapslivesearch-field-stores-search {
+  padding: 0;
+  height: 20px;
+  line-height: 15px;
+}
+
+/**** end of generic ****/
+
+/**** others ****/
+a.gmapslivesearch-printresults{
+  display: block;
+  clear:both;
+}

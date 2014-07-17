@@ -1,0 +1,7 @@
+name = CEM HUB
+description = Provides integration with HUB service.
+package = pfizer
+version = "7.x-4.0"
+core = 7.x
+files[] = cemhub.module
+dependencies[] = webform

@@ -1,0 +1,6 @@
+name = Pfizer Deploy Node Hierarchy
+core = 7.x
+package = Pfizer Base Features
+project = pfizer_deploy_nodehierarchy
+dependencies[] = pfizer_deploy
+dependencies[] = nodehierarchy

@@ -1,0 +1,192 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Install, update and uninstall functions for the cemhub module.
+ */
+
+/**
+ * Implements hook_install()
+ */
+function cemhub_install() {
+  variable_set('cemhub_external_campaign_parameters', "src\nsource");
+}
+
+/**
+ * Implements hook_uninstall()
+ */
+function cemhub_uninstall() {
+  // Deleting variables
+  db_delete('variable')->condition('name', 'cemhub_%', 'LIKE')->execute();
+
+  // Deleting Tables
+  drupal_uninstall_schema('cemhub');
+}
+
+/**
+ * Implements hook_schema().
+ */
+function cemhub_schema() {
+  $schema['cemhub_fields'] = cemhub_get_cemhub_fields_db_schema();
+  $schema['cemhub_forms_config'] = cemhub_get_cemhub_forms_config_db_schema();
+  $schema['cemhub_campaign_source'] = cemhub_get_campaign_source_db_schema();
+
+  return $schema ;
+}
+
+/**
+ * Returns the form setting DB schema
+ *
+ * @return array
+ */
+function cemhub_get_cemhub_forms_config_db_schema() {
+  return array(
+    'description' => 'Stores configurations of Forms to Pfizer CEM HUB integration',
+    'fields' => array(
+      'id' => array(
+        'description' => 'Primary Key: Unique ID.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'nid' => array(
+        'description' => 'Node ID of the referred Webform',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'survey_id' => array(
+        'description' => 'CEMHUB Survey ID of Form',
+        'type' => 'varchar',
+        'length' => 45,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'campaign_source' => array(
+        'description' => 'CEMHUB Campaign Source ID of Form',
+        'type' => 'varchar',
+        'length' => 45,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'external_campaign_source' => array(
+        'description' => 'External campaign source list',
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+      ),
+      'last_submission_id' => array(
+        'description' => 'The Last Webform Submission registered',
+        'type' => 'int',
+        'unsigned' => FALSE,
+        'not null' => TRUE,
+        'default' => -1,
+      ),
+      'limit_submissions' => array(
+        'description' => 'Limit of Submissions per day',
+        'type' => 'int',
+        'unsigned' => FALSE,
+        'not null' => TRUE,
+        'default' => 9999,
+      ),
+      'active' => array(
+        'description' => 'Status of activation of the Form',
+        'type' => 'char',
+        'length' => 1,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+}
+
+/**
+ * Returns the cemhub fields db schema
+ *
+ * @return array
+ */
+function cemhub_get_cemhub_fields_db_schema() {
+  return array(
+    'description' => 'Stores configuration Pfizer CEM HUB integration',
+    'fields' => array(
+      'id' => array(
+        'description' => 'Primary Key: Unique ID.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'cid' => array(
+        'description' => 'The webform component (field) ID',
+        'type' => 'int',
+        'size' => 'small',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'nid' => array(
+        'description' => 'Node ID of the referred Webform',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'question_code' => array(
+        'description' => 'CEMHUB question identification code',
+        'type' => 'blob',
+        'size' => 'big',
+        'not null' => FALSE,
+      ),
+      'answer_code' => array(
+        'description' => 'CEMHUB answer identification code',
+        'type' => 'blob',
+        'size' => 'big',
+        'not null' => FALSE,
+      ),
+      'active' => array(
+        'description' => 'Status of activation of field',
+        'type' => 'char',
+        'length' => 1,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+}
+
+/**
+ * Returns the campaign source code db schema
+ *
+ * @return array
+ */
+function cemhub_get_campaign_source_db_schema() {
+  return array(
+    'fields' => array(
+      'id' => array(
+        'description' => 'Primary Key: Unique ID.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'sid' => array(
+        'description' => 'Submission ID of the referred Webform',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'nid' => array(
+        'description' => 'Node id of the referred Webform',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'campaign' => array(
+        'description' => 'The campaign source ID',
+        'type' => 'varchar',
+        'length' => 45,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+}

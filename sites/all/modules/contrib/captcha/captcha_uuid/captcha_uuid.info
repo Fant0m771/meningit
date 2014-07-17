@@ -1,0 +1,8 @@
+name = Captcha UUID
+description = Allow deploying captcha points through Deploy and UUID modules.
+core = 7.x
+
+dependencies[] = captcha
+dependencies[] = uuid
+
+package = captcha

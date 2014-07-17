@@ -1,0 +1,190 @@
+<?php
+
+if (!defined('DOUBLECLICK_PREFIX')) {
+  define('DOUBLECLICK_PREFIX', 'doubleclick_');
+}
+
+/**
+ * Implements hook_install()
+ **/
+function doubleclick_install() {
+  $module_attributes = _doubleclick_variables();
+  foreach($module_attributes as $input_element => $default_value) {
+    variable_set(DOUBLECLICK_PREFIX.$input_element, $default_value);
+  }
+
+  $doubleclick_custom_fields = _doubleclick_node_custom_fields();
+  foreach ($doubleclick_custom_fields as $field) {
+    field_create_field($field);
+    field_create_instance($field);
+  }
+
+}
+
+/**
+ * Implements hook_uninstall()
+ **/
+function doubleclick_uninstall() {
+  $module_attributes = _doubleclick_variables();
+  foreach (array_keys($module_attributes) as $input_element) {
+    variable_del(DOUBLECLICK_PREFIX . $input_element);
+  }
+
+  $doubleclick_custom_fields = _doubleclick_node_custom_fields();
+  foreach ($doubleclick_custom_fields as $field) {
+    $instance = field_info_instance('node', $field['field_name'], 'basic_page');
+    if ($instance) {
+      field_delete_instance($instance);
+    }
+
+    field_delete_field($field['field_name']);
+  }
+
+}
+
+function _doubleclick_variables() {
+
+  $values = _doubleclick_default_values();
+  
+	$variables['tracking_src'] = $values['tracking_src'];
+	$variables['tracking_type'] = $values['tracking_type'];
+	$variables['tracking_url'] = $values['tracking_url'];
+  $variables['selectors_javascript'] = $values['selectors_javascript'];
+  $variables['onload_javascript'] = $values['onload_javascript'];
+
+  return $variables;
+}
+
+function _doubleclick_default_values() {
+  return array(
+      'tracking_src' => '',
+      'tracking_type' => '',
+      'tracking_url' => '',
+      'selectors_javascript' => '
+      // ADD SELECTORS CLICK EVENT HERE //
+
+      // END OF SELECTORS TRACKING //
+      function sendTrackVars(clickVars) {
+
+      if ( typeof clickVars.strType !== "undefined" && clickVars.strType.length) {
+      var strType = clickVars.strType;
+} else {
+      var strType = "u2";
+}
+
+      var trackVars = {
+      \'clientCode\': \'//@CLIENTID_PLACEHOLDER@\',
+      \'clientStrCode\': \'//@TRACKING_TYPE_PLACEHOLDER@\',
+      \'cat\': clickVars.cat,
+      \'strType\': strType,
+      \'trackValue\': clickVars.strValue,
+}
+
+      trackDoubleClick(trackVars);
+}
+      ',
+      'onload_javascript' => '
+
+      var pageTitle = Drupal.settings.doubleclick_tracking_value;
+
+      if (pageTitle.length) {
+
+      var trackingArray = {
+        \'clientCode\': \'//@CLIENTID_PLACEHOLDER@\',
+      \'clientStrCode\': \'//@TRACKING_TYPE_PLACEHOLDER@\',
+      \'clientUrl\': \'//@TRACKING_URL_PLACEHOLDER@\',
+      \'cat\': \'pgview\',
+      \'strType\': \'u1\',
+      \'trackValue\': pageTitle
+};
+       
+      trackDoubleClick(trackingArray);
+}
+       
+      var trackingArray = {
+        \'clientCode\': \'//@CLIENTID_PLACEHOLDER@\',
+        \'clientStrCode\': \'//@TRACKING_TYPE_PLACEHOLDER@\',
+        \'clientUrl\': \'//@TRACKING_URL_PLACEHOLDER@\',
+        \'cat\': \'visitmob\',
+        \'ord\': \'1\',
+      };
+      trackDoubleClick(trackingArray);
+
+      ',
+  );
+}
+/**
+ * Add content type for configurable string tracking
+ * @return type
+ */
+function _doubleclick_node_custom_fields() {
+  return array(
+      array(
+          'field_name' => 'field_doubleclick_value',
+          'entity_type' => 'node',
+          'type' => 'text',
+          'label' => 'DoubleClick Tracking Value',
+          'bundle' => 'page',
+          'required' => FALSE,
+          'translatable' => TRUE,
+          'active' => TRUE,
+          'display' => array( 'default' => array('type' => 'hidden') ),
+          'widget' => array(
+              'type' => 'text_textfield',
+          ),
+      ),
+      array(
+          'field_name' => 'field_doubleclick_webform_value',
+          'entity_type' => 'node',
+          'type' => 'text',
+          'label' => 'DoubleClick Tracking Value',
+          'bundle' => 'webform',
+          'required' => FALSE,
+          'translatable' => TRUE,
+          'active' => TRUE,
+          'display' => array( 'default' => array('type' => 'hidden') ),
+          'widget' => array(
+              'type' => 'text_textfield',
+          ),
+      ),
+  );
+}
+
+/**
+ * Implement hook_schema()
+ * @return string
+ */
+
+function doubleclick_schema() {
+  $schema['doubleclick_tracking_by_page'] = array(
+      'description' => 'doubleclick pages specific configuration.',
+      'fields' => array(
+          'dcid' => array(
+              'description' => 'The primary identifier for an entry.',
+              'type' => 'serial',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+          ),
+          'url' => array(
+              'description' => 'Page URL or content type machine name.',
+              'type' => 'varchar',
+              'length' => 255,
+              'not null' => TRUE,
+              'default' => '',
+          ),
+          'value' => array(
+              'description' => 'Whether it is an url or a content type.',
+              'type' => 'varchar',
+              'length' => 128,
+              'not null' => TRUE,
+              'default' => '',
+          ),
+      ),
+      'indexes' => array(
+          'url' => array('url'),
+      ),
+      'primary key' => array('dcid'),
+  );
+
+  return $schema;
+}

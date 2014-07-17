@@ -1,0 +1,11 @@
+name = Pfizer Base
+description = Pfizer base configuration module.
+
+core = 7.x
+
+hidden = TRUE
+required = TRUE
+
+dependencies[] = pfizer_administration
+dependencies[] = pfizer_deploy
+dependencies[] = pfizer_security

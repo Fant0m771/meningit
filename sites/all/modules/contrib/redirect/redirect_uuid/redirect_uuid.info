@@ -1,0 +1,6 @@
+name = Redirect UUID
+description = Add UUIDs to redirects which makes them deployable via deploy.
+core = 7.x
+
+dependencies[] = redirect
+dependencies[] = uuid

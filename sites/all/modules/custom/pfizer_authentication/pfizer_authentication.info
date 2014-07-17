@@ -1,0 +1,6 @@
+name = Pfizer Authentication
+description = This provides multiple authentication methods for Pfizer's Drupal sites.
+core = 7.x
+package = Pfizer Base Features
+project = pfizer_authentication
+project path = sites/all/modules/pfizer

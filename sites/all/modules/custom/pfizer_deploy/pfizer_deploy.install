@@ -1,0 +1,58 @@
+<?php
+
+/**
+ * @file
+ * Pfizer deploy module installation functions.
+ */
+
+define('PFIZER_DEPLOY_DIFF_UUID', '8badf00d-a7de-4dbe-efca-fe01fee1251c');
+
+/**
+ * Implements hook_install().
+ */
+function pfizer_deploy_install() {
+  // Use the plan in this module if the auto plan name is empty.
+  if (!variable_get('deploy_auto_plan_name', '')) {
+    variable_set('deploy_auto_plan_name', 'push_to_next');
+  }
+
+  // Create the role
+  $role = (object) array('name' => 'Content Diff');
+  user_role_save($role);
+  $roles = array($role->rid => $role->rid);
+
+  // Assign the permission
+  user_role_grant_permissions($role->rid, array('diff deployment plans'));
+
+  // Create the user
+  $user = array(
+    'name' => 'DigitalMarketing',
+    'pass' => 'Pfizer123',
+    'mail' => 'DL-BT-DIGITALMARKETING+wf_diff@pfizer.com',
+    'uuid' => PFIZER_DEPLOY_DIFF_UUID,
+    'status' => TRUE,
+    'roles' => $roles,
+  );
+
+  user_save(NULL, $user);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function pfizer_deploy_uninstall() {
+  $ids = entity_get_id_by_uuid('user', array(PFIZER_DEPLOY_DIFF_UUID), FALSE);
+  if ($ids) {
+    $uid = reset($ids);
+    user_delete($uid);
+  }
+
+  user_role_delete('Content Diff');
+}
+
+/**
+ * Add content diff user and role.
+ */
+function pfizer_deploy_update_7001(&$sandbox) {
+  pfizer_deploy_install();
+}

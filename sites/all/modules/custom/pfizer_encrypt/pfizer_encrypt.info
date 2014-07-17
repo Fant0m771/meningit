@@ -1,0 +1,12 @@
+name = Pfizer Encrypt
+description = This provides encryption mechanisms for Pfizer's Drupal sites.
+core = 7.x
+package = Pfizer Base Features
+version = 7.x-1.0-beta1
+project = pfizer_encrypt
+dependencies[] = ctools
+dependencies[] = strongarm
+dependencies[] = encrypt
+features[ctools][] = strongarm:strongarm:1
+features[features_api][] = api:2
+features[variable][] = encrypt_default_method

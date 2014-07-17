@@ -1,0 +1,176 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Enables the CEM HUB registration and cronjob system.
+ */
+
+// Always include the common functions file
+require_once (dirname(__FILE__) . '/cemhub.common.inc');
+
+define('CEMHUB_EXTENSION_GNUPG_NAME', 'gnupg');
+define('CEMHUB_EXTENSION_SSH_NAME', 'ssh2');
+define('CEMHUB_DEFAULT_LIMIT_SUBMISSION', 9999);
+define('CEMHUB_SUCCESS_EMAIL_DEFINITION', 'cemhub_success_email');
+define('CEMHUB_FAILURE_EMAIL_DEFINITION', 'cemhub_failure_email');
+define('CEMHUB_NO_SUBMISSIONS_EMAIL_DEFINITION', 'cemhub_no_submissions_email');
+define('CEMHUB_CAMPAIGN_SOURCE_SESSION', 'cemhub_external_campaign_source');
+define('CEMHUB_CAMPAIGN_SOURCE_COOKIES', 'cemhub_camp_src');
+define('CEMHUB_FILE_CLIENT_CODE', 'PFIZ');
+define('CEMHUB_FILE_INDICATOR', 'CHNLIN');
+define('CEMHUB_MENU_CALLBACK_DOWNLOAD_FLAT_FILE', 'admin/config/cemhub/jobs/file');
+
+/**
+ * Implements hook_boot()
+ */
+function cemhub_boot() {
+  cemhub_store_incoming_campaign_source_code_id();
+}
+
+/**
+ * Implements hook_menu()
+ */
+function cemhub_menu() {
+  $items['admin/config/cemhub/registration'] = array(
+    'title' => 'General Settings',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+
+  $items['admin/config/cemhub'] = array(
+    'title' => 'Pfizer CEM HUB',
+    'description' => 'Vendor Registration Settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cemhub_vendor_registration'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'cemhub.admin.inc',
+    'weight' => 0,
+  );
+
+  $items['admin/config/cemhub/integration-settings'] = array(
+    'title' => 'Integration',
+    'description' => 'Manage Integration Settings options to CEM HUB',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cemhub_integration_settings_form'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'cemhub.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 1,
+  );
+
+  $items['admin/config/cemhub/forms-settings'] = array(
+    'title' => 'Forms Settings',
+    'description' => 'Define which webforms will be integrated with CEM HUB',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cemhub_forms_settings_form'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'cemhub.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 2,
+  );
+
+  $items['admin/config/cemhub/fields'] = array(
+    'title' => 'Mapping Fields',
+    'description' => 'Define Q&A of the fields that will be sent to CEMHUB.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cemhub_mapping_fields'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'cemhub.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 3,
+  );
+
+  $items['admin/config/cemhub/email-alerts'] = array(
+    'title' => 'E-mail Alerts',
+    'description' => 'CEM HUB E-mail Alerts',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cemhub_form_email_alerts'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'cemhub.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 4,
+  );
+
+  $items['admin/config/cemhub/jobs'] = array(
+    'title' => 'Jobs',
+    'description' => 'Force to Run a Job or manage the generated flat files.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cemhub_form_jobs'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'cemhub.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 5,
+  );
+
+  $items[CEMHUB_MENU_CALLBACK_DOWNLOAD_FLAT_FILE] = array(
+    'title' => 'Download Flat file',
+    'page callback' => 'cemhub_download_flat_file',
+    'page arguments' => array(5),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'cemhub.common.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_cron()
+ */
+function cemhub_cron() {
+  if (cemhub_is_integration_enabled()) {
+    if (cemhub_cron_should_perform_job() && cemhub_check_required_environment_settings(FALSE, TRUE, TRUE)) {
+      variable_set('cemhub_last_cron_run', date('Ymd'));
+
+      module_load_include('inc', 'cemhub', 'cemhub.submission');
+      cemhub_process_submissions();
+    }
+  }
+  else {
+    watchdog('cemhub', 'The submissions was not processed because the variable "Integration enabled" is unset. The data are still at the database for future integration layer.');
+  }
+}
+
+/**
+ * Implements hook_node_delete()
+ */
+function cemhub_node_delete($node) {
+  $is_webform = $node->type == 'webform';
+  if ($is_webform) {
+    cemhub_cleanup_webform_references($node->nid);
+  }
+}
+
+/**
+ * Implements hook_mail()
+ */
+function cemhub_mail($key, &$message, $params) {
+  module_load_include('inc', 'cemhub', 'cemhub.mail');
+  $email_definition = cemhub_get_mail_definition($key, $params);
+
+  $message['subject'] = isset($email_definition['subject']) ? $email_definition['subject'] : '';
+  $message['body'][]  = isset($email_definition['body'])    ? $email_definition['body']    : '';
+}
+
+/**
+ * Implements hook_webform_submission_insert()
+ */
+function cemhub_webform_submission_insert($node, $submission) {
+  if (cemhub_is_webform_integrated($node->nid)) {
+    // Incoming campaign source id
+    $incoming_campaign_source_id = cemhub_retrieve_incoming_campaign_source_code_id();
+    if (cemhub_is_an_allowed_external_campaign_source_id($incoming_campaign_source_id, $submission->nid)) {
+      cemhub_insert_campaign_source_id_entry($node->nid, $submission->sid, $incoming_campaign_source_id);
+    }
+  }
+}
+
+/**
+ * Implements hook_webform_submission_delete
+ */
+function cemhub_webform_submission_delete($node, $submission) {
+  // Delete a record from cemhub_campaign_source table
+  db_delete('cemhub_campaign_source')
+  ->condition('sid', $submission->sid)
+  ->execute();
+}

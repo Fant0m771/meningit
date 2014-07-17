@@ -1,0 +1,103 @@
+<?php
+/**
+ * @file
+ * Code for the Pfizer Security feature.
+ * Returns a 404 for all node/%/whatever.bak paths not set in menu router.
+ * Deny all user logins except via drush_uli by setting deny_login to 1.
+ * Deny use of php_filer by setting deny_php to 1.
+ */
+
+include_once 'pfizer_security.features.inc';
+
+/**
+ * Implements hook_block_info_alter().
+ */
+function pfizer_security_block_info_alter() {
+  // Disable the user login block if deny_login is TRUE.
+  if (isset($blocks['user']) && variable_get('deny_login', FALSE)) {
+    $blocks['user']['login']['status'] = 0;
+    $blocks['user']['login']['region'] = -1;
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function pfizer_security_form_alter(&$form, &$form_state, $form_id) {
+  // If deny_login is TRUE, don't allow any logins via the block.
+  if ($form_id == 'user_login_block' && variable_get('deny_login', FALSE)) {
+    $form['#validate'][] = 'pfizer_security_login_validate';
+  }
+  // Add the autocomplete=off attribute to the login form
+  if ($form_id == 'user_login_block' || $form_id == 'user_login') {
+    $form['name']['#attributes'] = array('autocomplete' => 'off');
+    $form['pass']['#attributes'] = array('autocomplete' => 'off');
+  }
+}
+
+/**
+ * Implements hook_init().
+ */
+function pfizer_security_init() {
+  $item = menu_get_item();
+  // We are testing only for node/% as anything else legit will be defined.
+  // in the router table as node/%/edit, etc.
+  // This code prevents node/2/whatever.bak, etc. from coming up.
+  if (arg(0) == 'node' && arg(2) && $item['path'] == 'node/%') {
+    drupal_not_found();
+    drupal_exit();
+  }
+  // Add the no-store value to the Cache-Control header when the user is logged in.
+  if (user_is_logged_in()) {
+    drupal_add_http_header('Cache-Control', 'no-cache, no-store, must-revalidate, post-check=0, pre-check=0');
+  }
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function pfizer_security_menu_alter(&$items) {
+  // Unset user login and registration if deny_login is TRUE.
+  if (variable_get('deny_login', FALSE)) {
+    unset($items['user']);
+    unset($items['user/login']);
+    unset($items['user/register']);
+    unset($items['user/password']);
+  }
+}
+
+/**
+ * Custom validation function to deny login.
+ */
+function pfizer_security_login_validate($form, &$form_state) {
+  form_set_error('', 'Login is not allowed.');
+}
+
+/**
+ * Implements hook_file_validate().
+ *
+ * Use the Fileinfo API to inspect the uploaded file's honesty about its
+ * content and naming.
+ */
+function pfizer_security_file_validate($file) {
+  $errors = array();
+
+  $finfo = new finfo(FILEINFO_MIME_TYPE);
+  $content_mime = $finfo->file($file->uri);
+
+  if ($content_mime != $file->filemime) {
+    $errors[] = t("The file's content is inconsistent with its name. Please name the file properly before uploading.");
+    watchdog(
+      'pfizer_security',
+      'MIME mismatch for @filename: file name implies @name_mime while content indicates @content_mime',
+      array(
+        '@filename' => $file->filename,
+        '@name_mime' => $file->filemime,
+        '@content_mime' => $content_mime
+      ),
+      WATCHDOG_ERROR
+    );
+  }
+
+  return $errors;
+}

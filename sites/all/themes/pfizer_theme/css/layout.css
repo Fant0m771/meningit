@@ -1,0 +1,65 @@
+/*
+* Header
+*/
+  /* Top Menu */
+    /* Menu */
+    div#block-menu-menu-top-menu ul {}
+    /* Links */
+    div#block-menu-menu-top-menu a {}
+  /* [end of] Top Menu */
+/* 
+* [end of] Header 
+*/
+
+/*
+* Main Navigation
+*/
+  /* Menu Link */
+  div#block-system-main-menu li a {}
+  
+  nav#main-navigation div.block-menu li a,
+  nav#main-navigation div.block-menu li a#home {}
+  
+  nav#main-navigation div.block-menu li a.active {}
+/*
+* [end of] Main Navigation
+*/
+
+/*
+* Page Top
+*/
+	/* Top Menu */
+	div#page-top .link-menu a{}
+	
+	div#page-top .link-menu a.opened{}
+/*
+* [end of] Page Top
+
+/*
+* Footer
+*/
+
+  /* Have a Question Block */
+  div.have-a-question-block {}
+  div.have-a-question-block  h3 {}
+  div.have-a-question-block  span.phone-number{}
+  div.have-a-question-block  span.phone-number,
+  div.have-a-question-block  span.phone-number a {}
+  div.have-a-question-block p.content {}
+  div.have-a-question-block address{}
+  /* Helpful Answers Block */
+  div.helpful-answers-block h3 {}
+  div.helpful-answers-block p {}
+  div.helpful-answers-block tel.phone-number {}
+  div.helpful-answers-block a.pfizer-helpful-link {}
+  /* Footer Menu */
+  div#block-menu-menu-footer-menu ul a {}
+  /* Footer Links */
+  div#block-menu-menu-footer-links ul {}
+  div#block-menu-menu-footer-links a {}
+  /* Back To Top Button */
+  div.block.back-to-top a {}
+
+/*
+* [end of] Footer
+*/

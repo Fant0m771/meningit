@@ -1,0 +1,5 @@
+name = DoubleClick
+description = Set DoubleClick Tracking Service Settings
+package = pfizer mobile
+core = 7.x
+version = "7.x-1.2"

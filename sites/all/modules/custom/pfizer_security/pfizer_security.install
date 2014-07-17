@@ -1,0 +1,15 @@
+<?php
+/**
+ * @file
+ * Install, update and uninstall functions
+ */
+
+/**
+ * Disable Auto Logout Module.
+ */
+function pfizer_security_update_7001(&$sandbox) {
+  if (module_exists('autologout')){
+    module_disable(array('autologout'), TRUE);
+    drupal_uninstall_modules(array('autologout'));
+  }
+}

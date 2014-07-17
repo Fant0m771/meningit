@@ -1,0 +1,1 @@
+window.CKEDITOR_BASEPATH = '/sites/localhost.meningit/libraries/ckeditor/';

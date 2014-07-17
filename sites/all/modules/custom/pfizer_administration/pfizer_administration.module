@@ -1,0 +1,39 @@
+<?php
+/**
+ * @file
+ * Code for the Pfizer Administration feature.
+ */
+
+include_once 'pfizer_administration.features.inc';
+
+/**
+ * Implements hook_block_info_alter().
+ */
+function pfizer_administration_block_info_alter(&$blocks, $theme, $code_blocks) {
+  // Add admin dashboard blocks to the dashboard.
+  if (isset($blocks['views']) && ($theme == 'shiny' || $theme == 'ember')) {
+    $blocks['views']['dashboard_content-block']['status'] = 1;
+    $blocks['views']['dashboard_content-block']['region'] = 'dashboard_main';
+    $blocks['views']['dashboard_users-block']['status'] = 1;
+    $blocks['views']['dashboard_users-block']['region'] = 'dashboard_sidebar';
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function pfizer_administration_form_alter(&$form, &$form_state, $form_id) {
+  // Enforce revisions, and require a revision log message.
+  if (!empty($form['#node_edit_form'])) {
+    $form['revision_information']['revision']['#default_value'] = TRUE;
+    $form['revision_information']['revision']['#disabled'] = TRUE;
+    $form['revision_information']['log']['#required'] = TRUE;
+    // Move the revision tab to the top.
+    $form['revision_information']['#weight'] = -100;
+    $node = $form_state['node'];
+    if (!isset($node->nid) || isset($node->is_new)) {
+      // This is a new node, auto fill the log.
+      $form['revision_information']['log']['#default_value'] = "Initial node creation.";
+    }
+  }
+}

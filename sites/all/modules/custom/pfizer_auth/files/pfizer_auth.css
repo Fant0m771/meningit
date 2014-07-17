@@ -1,0 +1,21 @@
+#block-pfizer-auth-pfizer-auth-pac-login-form{
+  float:right;
+  text-align:right;
+}
+
+#block-pfizer-auth-pfizer-auth-pac-login-form .form-item{
+  display:inline-block;
+}
+
+#block-pfizer-auth-pfizer-auth-pac-login-form .form-item.pac-register{
+  display:block;
+}
+
+#block-pfizer-auth-pfizer-auth-pac-login-form .form-item label{
+  display:inline-block;
+}
+
+#block-pfizer-auth-pfizer-auth-pac-login-form .form-item.form-type-textfield input,
+#block-pfizer-auth-pfizer-auth-pac-login-form .form-item.form-type-password input{
+  width: 100px;
+}

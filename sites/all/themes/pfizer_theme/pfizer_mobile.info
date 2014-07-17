@@ -1,0 +1,17 @@
+name = Pfizer Mobile
+version = 7.x-1.3
+description = Mobile theme for Drupal 7
+core = 7.x
+engine = phptemplate
+
+stylesheets[screen][] = css/base.css
+
+scripts[] = scripts/iscroll.js
+scripts[] = scripts/theme_general.js
+
+regions[header] = Header
+regions[top] = Page top
+regions[navigation] = Navigation
+regions[content] = Content
+regions[footer] = Footer
+regions[bottom] = Page bottom
