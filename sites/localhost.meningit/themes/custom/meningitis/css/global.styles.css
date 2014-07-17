@@ -31,47 +31,179 @@
  * element. If you need to set default font properties of any kind use the BODY
  * element as these can be overridden using font theme settings.
  */
-@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/wamp\/www\/meningit\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\0000342}}
+@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/Work\/27-meetmeningitis\.com\/loc\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\0000342}}
 html {
   background: white;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/wamp\/www\/meningit\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\0000346}}
+@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/Work\/27-meetmeningitis\.com\/loc\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\0000346}}
 body {
   font-family: "Trebuchet MS", "Helvetica Neue", Arial, Helvetica, sans-serif;
   font-size: 87.5%;
 }
-
-@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/wamp\/www\/meningit\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\0000351}}
-#header {
-  border-top: 10px solid #e04e39;
+@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/Work\/27-meetmeningitis\.com\/loc\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\0000349}}
+body .left {
+  float: left;
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/Work\/27-meetmeningitis\.com\/loc\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\0000352}}
+body .right {
+  float: right;
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/Work\/27-meetmeningitis\.com\/loc\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\0000355}}
+body a {
+  text-decoration: none;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/wamp\/www\/meningit\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\0000355}}
-#main-content-header, #messages, #block-panels-mini-header-panel, .pane-footer-panel {
-  max-width: 960px;
+@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/Work\/27-meetmeningitis\.com\/loc\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\0000360}}
+#header {
+  border-top: 10px solid #e04e39;
+  position: relative;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/Work\/27-meetmeningitis\.com\/loc\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\0000365}}
+#main-content-header, #messages, #block-panels-mini-header-panel #mini-panel-header_panel, .pane-footer-panel {
+  max-width: 1300px;
   margin: 0 auto;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/wamp\/www\/meningit\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\0000360}}
+@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/Work\/27-meetmeningitis\.com\/loc\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\0000370}}
+#block-panels-mini-header-panel {
+  width: 100%;
+  top: 0;
+  z-index: 300;
+  position: absolute;
+  min-height: 80px;
+  height: auto !important;
+  height: 80px;
+  background: rgba(255, 255, 255, 0.7);
+  -ms-filter: progid:DXImageTransform.Microsoft.Gradient(GradientType=0,startColorStr='#B2FFFFFF', endColorStr='#B2FFFFFF');
+  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr=#B2FFFFFF,endColorstr=#B2FFFFFF);
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/Work\/27-meetmeningitis\.com\/loc\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\0000381}}
+#block-panels-mini-header-panel .pane-block-5, #block-panels-mini-header-panel .pane-block-6 {
+  float: right;
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/Work\/27-meetmeningitis\.com\/loc\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\0000384}}
+#block-panels-mini-header-panel .pane-block-1 {
+  float: left;
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/Work\/27-meetmeningitis\.com\/loc\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\0000389}}
+#block-panels-mini-header-panel .pane-block-6 .block-content a {
+  background: #fff;
+  border-left: 3px solid #e04e39;
+  border-right: 3px solid #e04e39;
+  border-bottom: 3px solid #e04e39;
+  -webkit-border-radius: 0 0 10px 10px;
+  -moz-border-radius: 0 0 10px 10px;
+  -ms-border-radius: 0 0 10px 10px;
+  -o-border-radius: 0 0 10px 10px;
+  border-radius: 0 0 10px 10px;
+  text-transform: uppercase;
+  display: block;
+  color: #e04e39;
+  padding: 5px 15px;
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/Work\/27-meetmeningitis\.com\/loc\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\00003102}}
+#block-panels-mini-header-panel .pane-system-main-menu {
+  float: left;
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/Work\/27-meetmeningitis\.com\/loc\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\00003104}}
+#block-panels-mini-header-panel .pane-system-main-menu ul {
+  margin: 0;
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/Work\/27-meetmeningitis\.com\/loc\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\00003106}}
+#block-panels-mini-header-panel .pane-system-main-menu ul li {
+  list-style: none;
+  display: inline-block;
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/Work\/27-meetmeningitis\.com\/loc\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\00003109}}
+#block-panels-mini-header-panel .pane-system-main-menu ul li a {
+  color: #253746;
+  font-weight: bold;
+  font-size: 14px;
+  padding: 5px 50px;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  -ms-border-radius: 10px;
+  -o-border-radius: 10px;
+  border-radius: 10px;
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/Work\/27-meetmeningitis\.com\/loc\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\00003115}}
+#block-panels-mini-header-panel .pane-system-main-menu ul li a.active {
+  display: block;
+  background: #253746;
+  color: #fff;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/Work\/27-meetmeningitis\.com\/loc\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\00003125}}
 #block-panels-mini-page-banner {
   max-width: 1300px;
   margin: 0 auto;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/wamp\/www\/meningit\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\0000367}}
+@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/Work\/27-meetmeningitis\.com\/loc\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\00003132}}
 a:hover img {
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=80);
   opacity: 0.8;
 }
 
 /* Article pages */
-@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/wamp\/www\/meningit\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\0000378}}
+@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/Work\/27-meetmeningitis\.com\/loc\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\00003143}}
 .node-type-article .pane-node-body .field-name-body .field-item .field-content {
   width: 960px;
   margin: 0 auto;
+  overflow: hidden;
+  padding: 50px 0;
+  color: #666666;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/wamp\/www\/meningit\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\0000386}}
+@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/Work\/27-meetmeningitis\.com\/loc\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\00003149}}
+.node-type-article .pane-node-body .field-name-body .field-item .field-content h2 {
+  font-size: 42px;
+  line-height: normal;
+  margin: 0 0 10px 0;
+  padding-top: 10px;
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/Work\/27-meetmeningitis\.com\/loc\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\00003155}}
+.node-type-article .pane-node-body .field-name-body .field-item .field-content h3 {
+  font-size: 24px;
+  line-height: normal;
+  margin: 0 0 10px 0;
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/Work\/27-meetmeningitis\.com\/loc\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\00003163}}
+.node-type-article .pane-node-body .field-name-body .field-item.even .field-content h2 {
+  color: #e04e39;
+  border-top: 10px solid #253746;
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/Work\/27-meetmeningitis\.com\/loc\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\00003167}}
+.node-type-article .pane-node-body .field-name-body .field-item.even .field-content img {
+  width: 45%;
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/Work\/27-meetmeningitis\.com\/loc\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\00003170}}
+.node-type-article .pane-node-body .field-name-body .field-item.even .field-content div {
+  width: 45%;
+  padding-right: 5%;
+  display: table;
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/Work\/27-meetmeningitis\.com\/loc\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\00003177}}
 .node-type-article .pane-node-body .field-name-body .field-item.odd {
   background-color: #ebebeb;
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/Work\/27-meetmeningitis\.com\/loc\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\00003179}}
+.node-type-article .pane-node-body .field-name-body .field-item.odd .field-content {
+  font-size: 18px;
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/Work\/27-meetmeningitis\.com\/loc\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\00003181}}
+.node-type-article .pane-node-body .field-name-body .field-item.odd .field-content h2 {
+  color: #253746;
+  border-top: 10px solid #e04e39;
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/Work\/27-meetmeningitis\.com\/loc\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\00003185}}
+.node-type-article .pane-node-body .field-name-body .field-item.odd .field-content img {
+  width: 45%;
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/Work\/27-meetmeningitis\.com\/loc\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\00003188}}
+.node-type-article .pane-node-body .field-name-body .field-item.odd .field-content div {
+  width: 45%;
+  padding-left: 5%;
+  display: table;
 }
