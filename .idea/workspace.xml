@@ -20,19 +20,19 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="global.styles.scss" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="global.styles.scss" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/sites/localhost.meningit/themes/custom/meningitis/sass/global.styles.scss">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="78" column="9" selection-start="2173" selection-end="2173" vertical-scroll-proportion="0.0">
+            <state line="79" column="25" selection-start="2224" selection-end="2224" vertical-scroll-proportion="0.7109067">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="_custom.scss" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="_custom.scss" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/sites/localhost.meningit/themes/custom/meningitis/sass/_custom.scss">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="195" column="0" selection-start="5927" selection-end="5927" vertical-scroll-proportion="0.85294116">
+            <state line="195" column="0" selection-start="5927" selection-end="5927" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -70,9 +70,9 @@
         <option value="$PROJECT_DIR$/sites/localhost.xejanz/themes/xeljanz_theme/scripts/script.js" />
         <option value="$PROJECT_DIR$/sites/localhost.xejanz/themes/xeljanz_theme/sass/global.styles.scss" />
         <option value="$PROJECT_DIR$/sites/localhost.meningit/themes/custom/meningitis/sass/global.base.scss" />
-        <option value="$PROJECT_DIR$/sites/localhost.meningit/themes/custom/meningitis/sass/global.styles.scss" />
         <option value="$PROJECT_DIR$/sites/localhost.meningit/themes/custom/meningitis/templates/fields/field.tpl.php" />
         <option value="$PROJECT_DIR$/sites/localhost.meningit/themes/custom/meningitis/sass/_custom.scss" />
+        <option value="$PROJECT_DIR$/sites/localhost.meningit/themes/custom/meningitis/sass/global.styles.scss" />
       </list>
     </option>
   </component>
@@ -443,13 +443,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/sites/localhost.meningit/themes/custom/meningitis/sass/global.styles.scss">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="78" column="9" selection-start="2173" selection-end="2173" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/sites/localhost.meningit/themes/custom/meningitis/sass/global.base.scss">
       <provider selected="true" editor-type-id="text-editor">
         <state line="555" column="42" selection-start="10191" selection-end="10191" vertical-scroll-proportion="0.0">
@@ -459,7 +452,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/sites/localhost.meningit/themes/custom/meningitis/sass/_custom.scss">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="195" column="0" selection-start="5927" selection-end="5927" vertical-scroll-proportion="0.85294116">
+        <state line="195" column="0" selection-start="5927" selection-end="5927" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sites/localhost.meningit/themes/custom/meningitis/sass/global.styles.scss">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="79" column="25" selection-start="2224" selection-end="2224" vertical-scroll-proportion="0.7109067">
           <folding />
         </state>
       </provider>

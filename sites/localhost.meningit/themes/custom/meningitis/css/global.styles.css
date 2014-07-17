@@ -66,11 +66,12 @@ a:hover img {
 }
 
 /* Article pages */
-@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/wamp\/www\/meningit\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\0000377}}
-.node-type-article .pane-node-body .field-name-body .field-item {
-  width: 1300px;
+@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/wamp\/www\/meningit\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\0000378}}
+.node-type-article .pane-node-body .field-name-body .field-item .field-content {
+  width: 960px;
+  margin: 0 auto;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/wamp\/www\/meningit\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\0000383}}
+@media -sass-debug-info{filename{font-family:file\:\/\/D\:\/wamp\/www\/meningit\/sites\/localhost\.meningit\/themes\/custom\/meningitis\/sass\/global\.styles\.scss}line{font-family:\0000386}}
 .node-type-article .pane-node-body .field-name-body .field-item.odd {
   background-color: #ebebeb;
 }

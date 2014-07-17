@@ -75,7 +75,10 @@ a {
   .pane-node-body {
      .field-name-body {
        .field-item {
-         width: $max_banner_width;
+         .field-content {
+           width: $max_site_width;
+           margin: 0 auto;
+         }
 
          &.even {
 
