@@ -312,6 +312,50 @@ function meningitis_article_default_panels_mini() {
     $pane->uuid = '32f9fd7a-1b1a-49ca-9a4b-91b6bff06922';
     $display->content['new-32f9fd7a-1b1a-49ca-9a4b-91b6bff06922'] = $pane;
     $display->panels['one_main'][0] = 'new-32f9fd7a-1b1a-49ca-9a4b-91b6bff06922';
+    $pane = new stdClass();
+    $pane->pid = 'new-f24a6b34-d8c2-4fbe-9b90-6a4212036b95';
+    $pane->panel = 'one_main';
+    $pane->type = 'block';
+    $pane->subtype = 'block-3';
+    $pane->shown = TRUE;
+    $pane->access = array();
+    $pane->configuration = array(
+      'override_title' => 0,
+      'override_title_text' => '<none>',
+    );
+    $pane->cache = array();
+    $pane->style = array(
+      'settings' => NULL,
+    );
+    $pane->css = array();
+    $pane->extras = array();
+    $pane->position = 1;
+    $pane->locks = array();
+    $pane->uuid = 'f24a6b34-d8c2-4fbe-9b90-6a4212036b95';
+    $display->content['new-f24a6b34-d8c2-4fbe-9b90-6a4212036b95'] = $pane;
+    $display->panels['one_main'][1] = 'new-f24a6b34-d8c2-4fbe-9b90-6a4212036b95';
+    $pane = new stdClass();
+    $pane->pid = 'new-67b01b87-b6c5-4eb4-875c-6ee8412e06ac';
+    $pane->panel = 'one_main';
+    $pane->type = 'block';
+    $pane->subtype = 'block-4';
+    $pane->shown = TRUE;
+    $pane->access = array();
+    $pane->configuration = array(
+      'override_title' => 0,
+      'override_title_text' => '<none>',
+    );
+    $pane->cache = array();
+    $pane->style = array(
+      'settings' => NULL,
+    );
+    $pane->css = array();
+    $pane->extras = array();
+    $pane->position = 2;
+    $pane->locks = array();
+    $pane->uuid = '67b01b87-b6c5-4eb4-875c-6ee8412e06ac';
+    $display->content['new-67b01b87-b6c5-4eb4-875c-6ee8412e06ac'] = $pane;
+    $display->panels['one_main'][2] = 'new-67b01b87-b6c5-4eb4-875c-6ee8412e06ac';
   $display->hide_title = PANELS_TITLE_FIXED;
   $display->title_pane = 'new-32f9fd7a-1b1a-49ca-9a4b-91b6bff06922';
   $mini->display = $display;

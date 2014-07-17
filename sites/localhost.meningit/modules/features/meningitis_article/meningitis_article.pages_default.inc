@@ -59,50 +59,6 @@ function meningitis_article_default_page_manager_handlers() {
   $display->content = array();
   $display->panels = array();
     $pane = new stdClass();
-    $pane->pid = 'new-85ac992a-40fc-4667-ba06-23b4bac0e86d';
-    $pane->panel = 'one_main';
-    $pane->type = 'block';
-    $pane->subtype = 'block-3';
-    $pane->shown = TRUE;
-    $pane->access = array();
-    $pane->configuration = array(
-      'override_title' => 0,
-      'override_title_text' => '<none>',
-    );
-    $pane->cache = array();
-    $pane->style = array(
-      'settings' => NULL,
-    );
-    $pane->css = array();
-    $pane->extras = array();
-    $pane->position = 0;
-    $pane->locks = array();
-    $pane->uuid = '85ac992a-40fc-4667-ba06-23b4bac0e86d';
-    $display->content['new-85ac992a-40fc-4667-ba06-23b4bac0e86d'] = $pane;
-    $display->panels['one_main'][0] = 'new-85ac992a-40fc-4667-ba06-23b4bac0e86d';
-    $pane = new stdClass();
-    $pane->pid = 'new-b5b9898f-4986-435a-b525-0e988bd4e91c';
-    $pane->panel = 'one_main';
-    $pane->type = 'block';
-    $pane->subtype = 'block-4';
-    $pane->shown = TRUE;
-    $pane->access = array();
-    $pane->configuration = array(
-      'override_title' => 0,
-      'override_title_text' => '<none>',
-    );
-    $pane->cache = array();
-    $pane->style = array(
-      'settings' => NULL,
-    );
-    $pane->css = array();
-    $pane->extras = array();
-    $pane->position = 1;
-    $pane->locks = array();
-    $pane->uuid = 'b5b9898f-4986-435a-b525-0e988bd4e91c';
-    $display->content['new-b5b9898f-4986-435a-b525-0e988bd4e91c'] = $pane;
-    $display->panels['one_main'][1] = 'new-b5b9898f-4986-435a-b525-0e988bd4e91c';
-    $pane = new stdClass();
     $pane->pid = 'new-a76ecc29-97e3-42d2-aee5-f3ee92b50b72';
     $pane->panel = 'one_main';
     $pane->type = 'entity_field';
@@ -126,11 +82,11 @@ function meningitis_article_default_page_manager_handlers() {
     );
     $pane->css = array();
     $pane->extras = array();
-    $pane->position = 2;
+    $pane->position = 0;
     $pane->locks = array();
     $pane->uuid = 'a76ecc29-97e3-42d2-aee5-f3ee92b50b72';
     $display->content['new-a76ecc29-97e3-42d2-aee5-f3ee92b50b72'] = $pane;
-    $display->panels['one_main'][2] = 'new-a76ecc29-97e3-42d2-aee5-f3ee92b50b72';
+    $display->panels['one_main'][0] = 'new-a76ecc29-97e3-42d2-aee5-f3ee92b50b72';
     $pane = new stdClass();
     $pane->pid = 'new-fc7c93b1-2441-4da2-923d-2a9782016dc2';
     $pane->panel = 'one_main';
@@ -148,13 +104,13 @@ function meningitis_article_default_page_manager_handlers() {
     );
     $pane->css = array();
     $pane->extras = array();
-    $pane->position = 3;
+    $pane->position = 1;
     $pane->locks = array();
     $pane->uuid = 'fc7c93b1-2441-4da2-923d-2a9782016dc2';
     $display->content['new-fc7c93b1-2441-4da2-923d-2a9782016dc2'] = $pane;
-    $display->panels['one_main'][3] = 'new-fc7c93b1-2441-4da2-923d-2a9782016dc2';
+    $display->panels['one_main'][1] = 'new-fc7c93b1-2441-4da2-923d-2a9782016dc2';
   $display->hide_title = PANELS_TITLE_FIXED;
-  $display->title_pane = 'new-85ac992a-40fc-4667-ba06-23b4bac0e86d';
+  $display->title_pane = '0';
   $handler->conf['display'] = $display;
   $export['node_view_panel_context'] = $handler;
 
